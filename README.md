@@ -60,7 +60,6 @@ wetland_health/
 ## Documentation
 - `README.md`: Project overview and setup instructions
 - `ANALYSIS.md`: Detailed analysis workflow and usage guide
-- `METHODOLOGY.md`: Comprehensive project methodology
 
 ## Data Management
 - Raw sequencing data will be deposited in ENA/SRA
