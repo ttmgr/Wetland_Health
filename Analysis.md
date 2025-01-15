@@ -1,5 +1,3 @@
-# Metagenomic Analysis Pipeline for Environmental Samples
-
 ## Overview
 This repository contains a collection of scripts for processing and analyzing metagenomic data from environmental samples, with a focus on Oxford Nanopore sequencing data.
 
@@ -17,11 +15,15 @@ This repository contains a collection of scripts for processing and analyzing me
 - Dorado (for basecalling)
 - Porechop (for adapter trimming)
 - NanoFilt (for read filtering)
+- NanoStat (for read metrics)
 - Kraken2 (for taxonomic classification)
 - Flye (for assembly)
 - Minimap2 (for read mapping)
 - Racon (for assembly polishing)
-- MetaMDBG (for alternative assembly)
+- assembly-stats (for assembly metrics)
+- AMRFinder Plus (for antimicrobial resistance gene detection)
+- seqtk (for FASTQ to FASTA conversion)
+- GNU Parallel (for parallel processing)
 
 ### Required Databases
 - Kraken2 database
@@ -35,14 +37,17 @@ conda create -n metagenome_pipeline python=3.9
 conda activate metagenome_pipeline
 
 # Install required tools
-conda install -c bioconda dorado
-conda install -c bioconda porechop
-conda install -c bioconda nanofilt
-conda install -c bioconda kraken2
-conda install -c bioconda flye
-conda install -c bioconda minimap2
-conda install -c bioconda racon
-conda install -c bioconda metamdbg
+conda install -c bioconda -c conda-forge dorado
+conda install -c bioconda -c conda-forge porechop
+conda install -c bioconda -c conda-forge nanofilt
+conda install -c bioconda -c conda-forge nanostat
+conda install -c bioconda -c conda-forge kraken2
+conda install -c bioconda -c conda-forge flye
+conda install -c bioconda -c conda-forge minimap2
+conda install -c bioconda -c conda-forge racon
+conda install -c bioconda -c conda-forge assembly-stats
+conda install -c bioconda -c conda-forge ncbi-amrfinderplus
+conda install -c bioconda -c conda-forge seqtk
 ```
 
 ### Database Setup
@@ -87,29 +92,34 @@ chmod +x scripts/*.sh
 ./scripts/03_nanofilt.sh -i trimmed_dir -o filtered_dir
 ```
 
-4. Taxonomic Classification
+4. Read Quality Metrics
+```bash
+./scripts/09_nanostat.sh -i filtered_dir -o metrics_dir
+```
+
+5. Taxonomic Classification
 ```bash
 ./scripts/04_kraken2.sh -i filtered_dir -d kraken2_db -o classified_dir
 ```
 
-5. Assembly
+6. Assembly
 ```bash
 ./scripts/05_flye.sh -i filtered_dir -o assembly_dir
 ```
 
-6. Read Mapping
+7. Read Mapping
 ```bash
 ./scripts/06_minimap2.sh -r filtered_dir -a assembly_dir -o mapped_dir
 ```
 
-7. Assembly Polishing
+8. Assembly Polishing
 ```bash
 ./scripts/07_racon.sh -r filtered_dir -s mapped_dir -a assembly_dir -o polished_dir
 ```
 
-8. Alternative Assembly
+9. Assembly Statistics
 ```bash
-./scripts/08_metamdbg.sh -i filtered_dir -o mdbg_dir
+./scripts/10_assembly_stats.sh -i polished_dir -o stats_dir
 ```
 
 ## Pipeline Components
@@ -124,10 +134,10 @@ chmod +x scripts/*.sh
 - Generation of taxonomic reports
 
 ### 3. Assembly and Polishing
-- Primary assembly using Flye
-- Alternative assembly using MetaMDBG
+- Metagenome assembly using Flye
 - Read mapping using Minimap2
 - Assembly polishing using Racon
+- Assembly statistics using assembly-stats
 
 ## Directory Structure
 ```
@@ -151,42 +161,3 @@ project/
 │   └── mdbg/          # MetaMDBG assemblies
 └── README.md
 ```
-
-## Parameters
-
-### Default Settings
-- Minimum read length: 100 bp
-- Number of threads: 16
-- Flye options: `--meta --nano-hq`
-- Minimap2 options: `-ax map-ont`
-
-These parameters can be adjusted using command-line options for each script.
-
-## Output Files
-
-### Quality Control
-- Trimmed FASTQ files
-- Filtered FASTQ files
-- Quality reports
-
-### Taxonomic Classification
-- Kraken2 output files
-- Taxonomic classification reports
-
-### Assembly
-- Assembled contigs (FASTA)
-- Assembly graphs
-- Assembly statistics
-
-### Polishing
-- Mapped reads (SAM/BAM)
-- Polished assemblies (FASTA)
-
-## Contributing
-Feel free to submit issues and enhancement requests.
-
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contact
-[Your Name] - [your.email@example.com]
