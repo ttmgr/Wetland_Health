@@ -69,15 +69,3 @@ wetland_health/
 
 ## Contributing
 Contributions are welcome! Please feel free to submit issues and enhancement requests.
-
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Citation
-If you use this pipeline in your research, please cite:
-[Citation information to be added]
-
-## Contact
-[Your Name]
-[Your Institution]
-[Your Email]
