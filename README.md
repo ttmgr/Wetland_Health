@@ -53,8 +53,7 @@ chmod +x bash_scripts/*.sh
 ```
 wetland_health/
 ├── bash_scripts/   # Analysis pipeline scripts
-├── processing/     # Output directories
-└── docs/          # Documentation
+└── Analysis.md/    # Pipeline overview
 ```
 
 ## Documentation
