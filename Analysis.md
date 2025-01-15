@@ -1,163 +1,224 @@
-## Overview
-This repository contains a collection of scripts for processing and analyzing metagenomic data from environmental samples, with a focus on Oxford Nanopore sequencing data.
+# Comprehensive Commands 
+
+This document provides a comprehensive list of commands for each tool used in the One Health Wetland project, with detailed explanations of the flags and options used.
 
 ## Table of Contents
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Pipeline Components](#pipeline-components)
-- [Directory Structure](#directory-structure)
-- [Scripts](#scripts)
+1. [Guppy Basecaller](#1-guppy-basecaller)
+2. [Porechop](#2-porechop)
+3. [NanoFilt](#3-nanofilt)
+4. [Flye](#4-flye)
+5. [Minimap2](#5-minimap2)
+6. [Racon](#6-racon)
+7. [Prodigal](#7-prodigal)
+8. [EggNOG-mapper](#8-eggnog-mapper)
+9. [CheckM](#9-checkm)
+10. [Kraken2](#10-kraken2)
+11. [DIAMOND](#11-diamond)
+12. [NCBI-AMRFinderPlus](#12-ncbi-amrfinderplus)
+13. [Prokka](#13-prokka)
+14. [Bakta](#14-bakta)
+15. [NanoStat](#15-nanostat)
+16. [Assembly-Stats](#16-assembly-stats)
 
-## Prerequisites
+1. Dorado Basecaller
+Converts raw electrical signal data from nanopore sequencing into DNA sequences, with support for both basecalling and demultiplexing.
 
-### Required Software
-- Dorado (for basecalling)
-- Porechop (for adapter trimming)
-- NanoFilt (for read filtering)
-- NanoStat (for read metrics)
-- Kraken2 (for taxonomic classification)
-- Flye (for assembly)
-- Minimap2 (for read mapping)
-- Racon (for assembly polishing)
-- assembly-stats (for assembly metrics)
-- AMRFinder Plus (for antimicrobial resistance gene detection)
-- seqtk (for FASTQ to FASTA conversion)
-- GNU Parallel (for parallel processing)
-
-### Required Databases
-- Kraken2 database
-
-## Installation
-
-### Using Conda
+# Basecalling
 ```bash
-# Create conda environment
-conda create -n metagenome_pipeline python=3.9
-conda activate metagenome_pipeline
-
-# Install required tools
-conda install -c bioconda -c conda-forge dorado
-conda install -c bioconda -c conda-forge porechop
-conda install -c bioconda -c conda-forge nanofilt
-conda install -c bioconda -c conda-forge nanostat
-conda install -c bioconda -c conda-forge kraken2
-conda install -c bioconda -c conda-forge flye
-conda install -c bioconda -c conda-forge minimap2
-conda install -c bioconda -c conda-forge racon
-conda install -c bioconda -c conda-forge assembly-stats
-conda install -c bioconda -c conda-forge ncbi-amrfinderplus
-conda install -c bioconda -c conda-forge seqtk
+dorado basecaller /path/to/model_config -r /path/to/pod5_files > basecalled.fastq --kit-name SQK-RBK114-24 --no-trim --emit-fastq
 ```
 
-### Database Setup
+# Demultiplexing
 ```bash
-# Download and setup Kraken2 database
-kraken2-build --standard --db kraken2_db
+dorado demux --output-dir output_directory/ --kit-name SQK-RBK114-24 basecalled.fastq --emit-fastq
 ```
 
-## Usage
+- `basecaller`: Command for converting raw signal to sequences
+- `/path/to/model_config`: Path to the model configuration (e.g., dna_r10.4.1_e8.2_400bps_sup@v5.0.0)
+- `-r /path/to/pod5_files`: Directory containing POD5 files
+- `--kit-name`: Specifies the sequencing kit used
+- `--no-trim`: Disables adapter trimming
+- `--emit-fastq`: Outputs in FASTQ format
+- `demux`: Command for demultiplexing barcoded samples
+- `--output-dir`: Directory for demultiplexed output files
 
-### Basic Usage
-1. Clone this repository
+## 2. Porechop
+Finds and removes adapters from Oxford Nanopore reads.
+
 ```bash
-git clone https://github.com/yourusername/metagenomic-pipeline.git
-cd metagenomic-pipeline
+porechop -i input.fastq -o output.fastq
 ```
 
-2. Make scripts executable
+- `-i input.fastq`: Specifies the input FASTQ file containing raw reads
+- `-o output.fastq`: Specifies the output FASTQ file for adapter-trimmed reads
+
+## 3. NanoFilt
+Filters Oxford Nanopore sequencing data based on quality and length.
+
 ```bash
-chmod +x scripts/*.sh
+gunzip -c input.fastq.gz | NanoFilt -q 9 -l 100 | gzip > output.fastq.gz
 ```
 
-3. Run the complete pipeline
+- `gunzip -c input.fastq.gz`: Decompresses the input file and writes to standard output
+- `NanoFilt -q 9 -l 100`: Filters reads, keeping those with quality ≥ 9 and length ≥ 100 bases
+- `gzip > output.fastq.gz`: Compresses the filtered output and saves it
+
+## 4. Flye
+De novo assembler for single-molecule sequencing reads, run in 'meta' mode for metagenomic data.
+
 ```bash
-./run_pipeline.sh -i input_dir -o output_dir -t threads
+flye --meta --nano-raw input.fastq --out-dir output_directory 
 ```
 
-### Individual Steps
+- `--meta`: Enables metagenomic mode for assembling mixed samples
+- `--nano-raw input.fastq`: Specifies input file of raw Nanopore reads
+- `--out-dir output_directory`: Specifies the output directory for assembly results
 
-1. Basecalling
+## 5. Minimap2
+Aligns DNA sequences against a large reference database.
+
 ```bash
-./scripts/01_basecalling.sh -i pod5_dir -o output_dir
+minimap2 -ax map-ont /path/to/flye/output/assembly.fasta /path/to/nanofilt/output/reads.fastq | samtools sort -o /path/to/minimap2/output/reads.sorted.bam
 ```
 
-2. Adapter Trimming
+- `-ax map-ont`: Sets the alignment mode for Oxford Nanopore reads
+- `/path/to/flye/output/assembly.fasta`: Specifies the reference assembly
+- `/path/to/nanofilt/output/reads.fastq`: Specifies the input reads to align
+- `samtools sort -o /path/to/minimap2/output/reads.sorted.bam`: Sorts the alignment and outputs as a BAM file
+
+## 6. Racon
+Consensus module to correct raw contigs generated by rapid assembly methods.
+
 ```bash
-./scripts/02_porechop.sh -i fastq_dir -o trimmed_dir
+racon /path/to/nanofilt/output/reads.fastq /path/to/minimap2/output/reads.sam /path/to/flye/output/assembly.fasta > /path/to/racon/output/assembly.polished.fasta
 ```
 
-3. Length Filtering
+- First argument: Path to the filtered reads
+- Second argument: Path to the alignment file (SAM format)
+- Third argument: Path to the initial assembly
+- `> /path/to/racon/output/assembly.polished.fasta`: Redirects the polished assembly to an output file
+
+## 7. Prodigal
+Microbial gene finding program.
+
 ```bash
-./scripts/03_nanofilt.sh -i trimmed_dir -o filtered_dir
+prodigal -i /path/to/assembly.fasta -a /path/to/proteins.faa -o /path/to/prodigal_output.gbk -p meta
 ```
 
-4. Read Quality Metrics
+- `-i /path/to/assembly.fasta`: Specifies the input FASTA file
+- `-a /path/to/proteins.faa`: Specifies the output file for protein sequences
+- `-o /path/to/prodigal_output.gbk`: Specifies the output file in Genbank format
+- `-p meta`: Sets the procedure to metagenomic mode
+
+## 8. EggNOG-mapper
+Tool for fast functional annotation of novel sequences.
+
 ```bash
-./scripts/09_nanostat.sh -i filtered_dir -o metrics_dir
+emapper.py -i /path/to/proteins.faa -o /path/to/eggnog_output -m diamond --cpu 8 --data_dir /path/to/eggnog_data/
 ```
 
-5. Taxonomic Classification
+- `-i /path/to/proteins.faa`: Specifies the input protein FASTA file
+- `-o /path/to/eggnog_output`: Specifies the output file prefix
+- `-m diamond`: Sets the search method to DIAMOND
+- `--cpu 8`: Sets the number of CPU cores to use
+- `--data_dir /path/to/eggnog_data/`: Specifies the directory containing eggNOG data files
+
+## 9. CheckM
+Assesses the quality of genomes recovered from metagenomes.
+
 ```bash
-./scripts/04_kraken2.sh -i filtered_dir -d kraken2_db -o classified_dir
+checkm lineage_wf /path/to/bins/ /path/to/checkm_output/
 ```
 
-6. Assembly
+- `lineage_wf`: Specifies the lineage-specific workflow
+- `/path/to/bins/`: Specifies the directory containing genome bins
+- `/path/to/checkm_output/`: Specifies the output directory for CheckM results
+
+## 10. Kraken2
+Assigns taxonomic labels to short DNA sequences.
+
 ```bash
-./scripts/05_flye.sh -i filtered_dir -o assembly_dir
+kraken2 --db kraken_db_finalized --use-names --report report_samplename.txt --output output_samplename.txt sample.fastq --memory-mapping --threads 24
 ```
 
-7. Read Mapping
+- `--db kraken_db_finalized`: Specifies the path to the Kraken2 database
+- `--use-names`: Adds taxa names to the output
+- `--report report_samplename.txt`: Specifies the file for the kraken report
+- `--output output_samplename.txt`: Specifies the file for kraken output
+- `sample.fastq`: Specifies the input FASTQ file
+- `--memory-mapping`: Uses memory mapping to load the database, reducing memory usage
+- `--threads 24`: Sets the number of threads to use
+
+## 11. DIAMOND
+Performs fast protein alignments.
+
 ```bash
-./scripts/06_minimap2.sh -r filtered_dir -a assembly_dir -o mapped_dir
+diamond blastx -d diamond_db -q sample.fastq -o sample_name_blastx.dmnd_out -f 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids salltitles sscinames
 ```
 
-8. Assembly Polishing
+- `blastx`: Specifies the BLASTX-like translated search
+- `-d diamond_db`: Specifies the DIAMOND formatted database file
+- `-q sample.fastq`: Specifies the input query file in FASTQ format
+- `-o sample_name_blastx.dmnd_out`: Specifies the output file
+- `-f 6`: Sets the output format to tabular
+- The remaining parameters specify the fields to include in the output (e.g., query sequence id, subject sequence id, percentage of identical matches, etc.)
+
+## 12. NCBI-AMRFinderPlus
+AMRFinderPlus identifies antimicrobial resistance genes in protein or nucleotide sequences.
+
 ```bash
-./scripts/07_racon.sh -r filtered_dir -s mapped_dir -a assembly_dir -o polished_dir
+amrfinder -n input_assembly.fasta -o amrfinder_output.tsv --plus
 ```
 
-9. Assembly Statistics
+- `-n input_assembly.fasta`: Specifies the input nucleotide FASTA file
+- `-o amrfinder_output.tsv`: Specifies the output file name
+- `--plus`: Enables the use of AMRFinderPlus, which includes point mutations
+
+## 13. Prokka
+Prokka is a tool for rapid prokaryotic genome annotation.
+
 ```bash
-./scripts/10_assembly_stats.sh -i polished_dir -o stats_dir
+prokka --outdir prokka_output --prefix sample_name --kingdom Bacteria --locustag SAMPLE input_assembly.fasta
 ```
 
-## Pipeline Components
+- `--outdir prokka_output`: Specifies the output directory
+- `--prefix sample_name`: Sets the prefix for output files
+- `--kingdom Bacteria`: Specifies the kingdom (could also be Archaea)
+- `--locustag SAMPLE`: Sets the locus tag prefix for CDS features
+- `input_assembly.fasta`: Specifies the input assembly file
 
-### 1. Quality Control
-- Adapter removal using Porechop
-- Length filtering using NanoFilt
-- Read statistics using NanoStat
+## 14. Bakta
+Bakta is a tool for the rapid & standardized annotation of bacterial genomes & plasmids.
 
-### 2. Taxonomic Classification
-- Classification of raw reads using Kraken2
-- Generation of taxonomic reports
-
-### 3. Assembly and Polishing
-- Metagenome assembly using Flye
-- Read mapping using Minimap2
-- Assembly polishing using Racon
-- Assembly statistics using assembly-stats
-
-## Directory Structure
+```bash
+bakta --db /path/to/bakta/db --output bakta_output --prefix sample_name input_assembly.fasta
 ```
-project/
-├── scripts/
-│   ├── 01_basecalling.sh
-│   ├── 02_porechop.sh
-│   ├── 03_nanofilt.sh
-│   ├── 04_kraken2.sh
-│   ├── 05_flye.sh
-│   ├── 06_minimap2.sh
-│   ├── 07_racon.sh
-│   └── 08_metamdbg.sh
-├── processing/
-│   ├── porechop/      # Adapter-trimmed reads
-│   ├── nanofilt/      # Length-filtered reads
-│   ├── kraken2/       # Taxonomic classification
-│   ├── flye/          # Flye assemblies
-│   ├── minimap2/      # Read alignments
-│   ├── racon/         # Polished assemblies
-│   └── mdbg/          # MetaMDBG assemblies
-└── README.md
+
+- `--db /path/to/bakta/db`: Specifies the path to the Bakta database
+- `--output bakta_output`: Specifies the output directory
+- `--prefix sample_name`: Sets the prefix for output files
+- `input_assembly.fasta`: Specifies the input assembly file
+
+## 15. NanoStat
+NanoStat generates statistics for Oxford Nanopore sequencing data.
+
+```bash
+NanoStat --fastq input_reads.fastq --outdir nanostat_output --name sample_name
 ```
+
+- `--fastq input_reads.fastq`: Specifies the input FASTQ file
+- `--outdir nanostat_output`: Specifies the output directory
+- `--name sample_name`: Sets the prefix for the output file
+
+## 16. Assembly-Stats
+Assembly-Stats calculates various statistics for genome assemblies.
+
+```bash
+assembly-stats -t input_assembly.fasta > assembly_stats_output.txt
+```
+
+- `-t`: Enables tab-delimited output
+- `input_assembly.fasta`: Specifies the input assembly file
+- `> assembly_stats_output.txt`: Redirects the output to a file
+
+Note: Replace file paths, database locations, and parameter values as needed for your specific setup and data. Consult each tool's documentation for detailed information on available options and best practices.
