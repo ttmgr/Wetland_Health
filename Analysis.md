@@ -86,7 +86,57 @@ Required GPU: NVIDIA with ≥8GB VRAM
 ```
 Removes adapter sequences from reads.
 
-[... rest of the usage instructions remain the same ...]
+Removes adapter sequences from reads.
+### 3. Length Filtering
+bash
+./bash_scripts/03_nanofilt.sh -i trimmed_dir -o filtered_dir
+
+Filters reads based on length criteria.
+### 4. Read Quality Metrics
+bash
+./bash_scripts/04_readmetrics.sh -i filtered_dir -o metrics_dir
+
+Generates quality metrics for filtered reads.
+### 5. Taxonomic Classification
+bash
+./bash_scripts/05_kraken2_reads.sh -i filtered_dir -d kraken2_db -o classified_dir
+
+Performs taxonomic classification of reads.
+### 6. Assembly
+bash
+./bash_scripts/06_flye.sh -i filtered_dir -o assembly_dir
+
+Assembles reads into contigs.
+### 7. Read Mapping
+bash
+./bash_scripts/07_minimap2.sh -r filtered_dir -a assembly_dir -o mapped_dir
+
+Maps reads back to assemblies.
+### 8. Assembly Polishing
+bash
+./bash_scripts/08_racon.sh -r filtered_dir -s mapped_dir -a assembly_dir -o polished_dir
+
+Polishes assemblies using mapped reads.
+### 9. Assembly Statistics
+bash
+./bash_scripts/09_assemblystats.sh -i polished_dir -o stats_dir
+
+Generates assembly quality metrics.
+### 10. FASTQ to FASTA Conversion
+bash
+./bash_scripts/10_seqkit.sh -i filtered_dir -o fasta_dir
+
+Converts FASTQ files to FASTA format.
+### 11. AMR Detection (Reads)
+bash
+./bash_scripts/11_amrfinderplus_reads.sh -i fasta_dir -d amrfinder_db -o amr_reads_dir
+
+Detects AMR genes in filtered reads.
+### 12. AMR Detection (Assembly)
+bash
+./bash_scripts/12_amrfinderplus_contigs.sh -i polished_dir -d amrfinder_db -o amr_assembly_dir
+
+Detects AMR genes in polished assemblies.
 
 ## Output Structure
 ```
