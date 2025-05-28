@@ -74,6 +74,7 @@ if [ $? -ne 0 ]; then
 fi
 echo "Demultiplexing completed. Demultiplexed FASTQ files are in ${DEMUX_OUTPUT_DIR}/"
 echo "Process completed successfully."
+```
 **Output:** Demultiplexed FASTQ files (one per barcode/sample) in the specified output directory. Each subsequent step will typically be run on these individual demultiplexed FASTQ files.
 
 ---
@@ -84,7 +85,59 @@ This step cleans the demultiplexed FASTQ files by removing any remaining adapter
 **Input:** A single demultiplexed FASTQ file (e.g., `barcode01.fastq`) from the Dorado output.
 **Output:** A processed FASTQ file (e.g., `barcode01.filtered.fastq`).
 
-*<Bash commands for Porechop and NanoFilt will be added here in the next step.>*
+```bash
+# Activate Mamba environments
+# mamba activate porechop_env
+# mamba activate nanofilt_env # Or run in sequence if preferred
+
+# Define variables for a single sample
+INPUT_DEMUX_FASTQ="demultiplexed_fastq/barcodeXX.fastq" # Replace barcodeXX with actual file
+TRIMMED_FASTQ="processed_reads/barcodeXX.trimmed.fastq"
+FILTERED_FASTQ="processed_reads/barcodeXX.filtered.fastq"
+THREADS=<N> # Number of threads to use, e.g., 4
+
+# Create output directory
+mkdir -p processed_reads
+
+echo "Processing sample: ${INPUT_DEMUX_FASTQ}"
+
+# Step 2.1: Adapter and Barcode Trimming with Porechop
+# Sequencing adapters and barcodes were removed using Porechop v0.2.4[cite: 84].
+echo "Running Porechop for adapter trimming..."
+porechop \
+    -i ${INPUT_DEMUX_FASTQ} \
+    -o ${TRIMMED_FASTQ} \
+    --threads ${THREADS}
+
+if [ $? -ne 0 ]; then
+    echo "Error in Porechop step for ${INPUT_DEMUX_FASTQ}."
+    # exit 1 # Decide if you want to exit or continue with other samples
+fi
+echo "Porechop completed for ${INPUT_DEMUX_FASTQ}."
+```
+
+# Step 2.2: Quality and Length Filtering with NanoFilt
+# Reads were filtered using NanoFilt v2.8.0, keeping only reads with a minimum length of 100 base pairs[cite: 85].
+echo "Running NanoFilt for quality and length filtering..."
+NanoFilt \
+    --length 100 \
+    < ${TRIMMED_FASTQ} \
+    > ${FILTERED_FASTQ}
+    # Quality threshold not specified in PDF for NanoFilt for this step,
+    # but a common default or Q score like 8 might be used if desired.
+    # For example, adding --quality 8 if desired:
+    # NanoFilt --length 100 --quality 8 < ${TRIMMED_FASTQ} > ${FILTERED_FASTQ}
+
+
+if [ $? -ne 0 ]; then
+    echo "Error in NanoFilt step for ${TRIMMED_FASTQ}."
+    # exit 1
+fi
+echo "NanoFilt completed. Processed file: ${FILTERED_FASTQ}"
+
+# Deactivate environments if you activated them for single tool usage
+# mamba deactivate
+```
 
 *Repeat these steps for each demultiplexed FASTQ file.*
 
