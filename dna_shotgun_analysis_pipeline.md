@@ -27,8 +27,53 @@ This step converts the raw Nanopore signal data (POD5 files) into FASTQ sequence
 * Refer to the Dorado documentation and the [`dna_shotgun_data_guide.md`](./dna_shotgun_data_guide.md) for specific model paths and kit names if they differ.
 * Ensure Dorado is installed and accessible in your environment.
 
-*<Bash commands for Dorado basecalling and demux will be added here in the next step.>*
+```bash
+# Define variables (modify these paths and names as needed)
+DORADO_BIN="/path/to/dorado_executable/dorado" # e.g., /opt/dorado/bin/dorado
+CONFIG_FILE="/path/to/dorado_models/dna_r10.4.1_e8.2_400bps_sup@v5.0.0" # Model dna_r10.4.1_e8.2_400bps_sup@v5.0.0 used
+INPUT_POD5_DIR="/path/to/your_raw_pod5_data_recursive_search" # Dorado will search recursively
+BASECALLED_FASTQ="basecalled_all_samples.fastq" # Intermediate file
+DEMUX_OUTPUT_DIR="demultiplexed_fastq"
+KIT_NAME="SQK-RBK114-24" # Rapid Barcoding Kit 114-24 (RBK114-24) used for DNA libraries
 
+# Create output directory for demultiplexed files
+mkdir -p ${DEMUX_OUTPUT_DIR}
+
+# Step 1: Run Dorado Basecaller
+# Basecalling performed on raw sequencing data (.pod5 format) in super-accuracy (SUP) mode.
+# Sequencing runs lasted 24 hours with a 5kHz sampling frequency and a minimum read length of 20 bases.
+# User script example used --no-trim.
+echo "Running Dorado basecaller..."
+${DORADO_BIN} basecaller \
+    ${CONFIG_FILE} \
+    ${INPUT_POD5_DIR} \
+    --kit-name ${KIT_NAME} \
+    --no-trim \
+    --emit-fastq > ${BASECALLED_FASTQ}
+
+# Check if basecalling was successful
+if [ $? -ne 0 ]; then
+    echo "Error in Dorado basecalling step. Please check the command and paths."
+    exit 1
+fi
+echo "Basecalling completed."
+
+# Step 2: Run Dorado Demux
+# Dorado subsequently demultiplexed FASTQ files based on assigned barcodes.
+echo "Running Dorado demux..."
+${DORADO_BIN} demux \
+    --output-dir ${DEMUX_OUTPUT_DIR}/ \
+    --kit-name ${KIT_NAME} \
+    ${BASECALLED_FASTQ} \
+    --emit-fastq
+
+# Check if demultiplexing was successful
+if [ $? -ne 0 ]; then
+    echo "Error in Dorado demultiplexing step. Please check the command and paths."
+    exit 1
+fi
+echo "Demultiplexing completed. Demultiplexed FASTQ files are in ${DEMUX_OUTPUT_DIR}/"
+echo "Process completed successfully."
 **Output:** Demultiplexed FASTQ files (one per barcode/sample) in the specified output directory. Each subsequent step will typically be run on these individual demultiplexed FASTQ files.
 
 ---
