@@ -1241,4 +1241,4 @@ dependencies:
 3. **Resource Allocation**
    - Adjust thread counts based on available cores
    - Monitor RAM usage during assembly
-   - Use appropriate queue systems for H
+   - Use appropriate queue systems for High Performance Compute
