@@ -47,6 +47,7 @@ ${DORADO_BIN} basecaller \
 
 echo "Basecalling complete. Output: ${OUTPUT_DIR}/reads.fastq"
 # This FASTQ file is the input for the virus analysis pipeline
+```
 
 ```mermaid
 graph TD
