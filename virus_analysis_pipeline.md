@@ -12,6 +12,7 @@ This document provides the workflow for virus analysis from environmental RNA (e
 ## Prerequisites
 
 - Tools installed:
+  - Dorado (for basecalling)
   - Minimap2 v2.28
   - SAMtools v1.17
   - BCFtools v1.17
@@ -21,6 +22,31 @@ This document provides the workflow for virus analysis from environmental RNA (e
 - Reference databases:
   - NCBI Influenza Virus Database (European sequences, as of 04/03/2023)
   - NCBI non-redundant protein database (NR, accessed May 2025)
+
+## Data Preprocessing
+
+### Basecalling with Dorado
+
+Convert raw POD5 signal data to FASTQ sequences before virus analysis:
+
+```bash
+#!/bin/bash
+# Basecalling RNA reads with Dorado
+
+# Define variables
+DORADO_BIN="/path/to/dorado"
+MODEL="/path/to/models/rna004_130bps_sup_v5.0.0"  # RNA model
+POD5_DIR="/path/to/pod5_data"
+OUTPUT_DIR="basecalled_reads"
+
+# Run basecalling
+${DORADO_BIN} basecaller \
+    ${MODEL} \
+    ${POD5_DIR} \
+    --emit-fastq > ${OUTPUT_DIR}/reads.fastq
+
+echo "Basecalling complete. Output: ${OUTPUT_DIR}/reads.fastq"
+# This FASTQ file is the input for the virus analysis pipeline
 
 ```mermaid
 graph TD
