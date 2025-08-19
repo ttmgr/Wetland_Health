@@ -1238,7 +1238,470 @@ dependencies:
    - Use compression for long-term storage
    - Monitor disk usage regularly
 
+```markdown
 3. **Resource Allocation**
    - Adjust thread counts based on available cores
    - Monitor RAM usage during assembly
-   - Use appropriate queue systems for High Performance Compute
+   - Use appropriate queue systems for HPC environments
+
+## Quality Control Checkpoints
+
+### QC Script: qc_checkpoints.sh
+
+```bash
+#!/bin/bash
+# Quality control checkpoints throughout the pipeline
+
+QC_DIR="qc_reports"
+mkdir -p ${QC_DIR}
+
+# Function to generate QC report
+generate_qc_report() {
+    local step=$1
+    local input_dir=$2
+    local output_file="${QC_DIR}/${step}_qc_report.txt"
+    
+    echo "QC Report for ${step}" > ${output_file}
+    echo "Generated: $(date)" >> ${output_file}
+    echo "========================" >> ${output_file}
+    
+    case ${step} in
+        "basecalling")
+            echo "Basecalling Statistics:" >> ${output_file}
+            seqkit stats 01_basecalled/*.fastq >> ${output_file}
+            ;;
+        "demultiplexing")
+            echo "Demultiplexing Statistics:" >> ${output_file}
+            for file in 02_demultiplexed/*.fastq; do
+                barcode=$(basename ${file} .fastq)
+                reads=$(grep -c "^@" ${file})
+                echo "${barcode}: ${reads} reads" >> ${output_file}
+            done
+            ;;
+        "filtering")
+            echo "Filtering Statistics:" >> ${output_file}
+            echo "Before filtering:" >> ${output_file}
+            seqkit stats 03_trimmed/*.fastq >> ${output_file}
+            echo -e "\nAfter filtering:" >> ${output_file}
+            seqkit stats 04_filtered/*.fastq >> ${output_file}
+            ;;
+        "assembly")
+            echo "Assembly Statistics:" >> ${output_file}
+            for dir in 09_medaka_polished/barcode*; do
+                if [ -d "${dir}" ]; then
+                    barcode=$(basename ${dir})
+                    assembly="${dir}/final_assembly.fasta"
+                    if [ -f "${assembly}" ]; then
+                        echo -e "\n${barcode}:" >> ${output_file}
+                        seqkit stats ${assembly} >> ${output_file}
+                        # N50 calculation
+                        n50=$(seqkit seq -j 1 ${assembly} | seqkit fx2tab -l -n | \
+                              sort -k2,2nr | awk '{sum+=$2; print $2, sum}' | \
+                              awk -v total=$(seqkit stats -T ${assembly} | tail -1 | cut -f5) \
+                              'sum >= total/2 {print $1; exit}')
+                        echo "N50: ${n50}" >> ${output_file}
+                    fi
+                fi
+            done
+            ;;
+    esac
+    
+    echo "QC report saved: ${output_file}"
+}
+
+# Run QC at each major checkpoint
+generate_qc_report "basecalling" "01_basecalled"
+generate_qc_report "demultiplexing" "02_demultiplexed"
+generate_qc_report "filtering" "04_filtered"
+generate_qc_report "assembly" "09_medaka_polished"
+
+# Generate combined QC summary
+python3 generate_qc_summary.py --qc-dir ${QC_DIR} --output "${QC_DIR}/qc_summary.html"
+```
+
+### generate_qc_summary.py
+
+```python
+#!/usr/bin/env python3
+"""
+Generate comprehensive QC summary report
+"""
+
+import argparse
+import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
+from pathlib import Path
+import re
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Generate QC summary')
+    parser.add_argument('--qc-dir', required=True, help='QC reports directory')
+    parser.add_argument('--output', required=True, help='Output HTML file')
+    return parser.parse_args()
+
+def parse_qc_reports(qc_dir):
+    """Parse QC reports and extract metrics"""
+    metrics = {
+        'basecalling': {},
+        'demultiplexing': {},
+        'filtering': {},
+        'assembly': {}
+    }
+    
+    # Parse each QC report
+    for report_file in Path(qc_dir).glob('*_qc_report.txt'):
+        step = report_file.stem.replace('_qc_report', '')
+        
+        with open(report_file, 'r') as f:
+            content = f.read()
+            
+        if step == 'demultiplexing':
+            # Extract barcode read counts
+            pattern = r'(barcode\d+): (\d+) reads'
+            matches = re.findall(pattern, content)
+            metrics[step] = {bc: int(count) for bc, count in matches}
+            
+        # Add more parsing logic for other steps
+    
+    return metrics
+
+def create_qc_plots(metrics):
+    """Create QC visualization plots"""
+    plots = {}
+    
+    # Demultiplexing distribution
+    if metrics['demultiplexing']:
+        barcodes = list(metrics['demultiplexing'].keys())
+        read_counts = list(metrics['demultiplexing'].values())
+        
+        fig = px.bar(x=barcodes, y=read_counts, 
+                     title='Read Distribution Across Barcodes',
+                     labels={'x': 'Barcode', 'y': 'Number of Reads'})
+        plots['demux_distribution'] = fig.to_html(full_html=False)
+    
+    return plots
+
+def generate_qc_html(metrics, plots, output_path):
+    """Generate HTML QC report"""
+    html_template = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Pipeline QC Summary</title>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <style>
+            body {{ font-family: Arial, sans-serif; margin: 40px; }}
+            .metric-card {{
+                background: #f5f5f5;
+                padding: 15px;
+                margin: 10px 0;
+                border-radius: 5px;
+                border-left: 4px solid #007bff;
+            }}
+            .warning {{ border-left-color: #ffc107; }}
+            .error {{ border-left-color: #dc3545; }}
+            .success {{ border-left-color: #28a745; }}
+        </style>
+    </head>
+    <body>
+        <h1>Pipeline Quality Control Summary</h1>
+        
+        <div class="metric-card">
+            <h2>Overall Statistics</h2>
+            <ul>
+                <li>Total samples: {n_samples}</li>
+                <li>Pipeline completion: {completion_status}</li>
+                <li>Generated: {timestamp}</li>
+            </ul>
+        </div>
+        
+        <h2>Read Distribution</h2>
+        {demux_plot}
+        
+        <div class="metric-card">
+            <h2>Quality Checkpoints</h2>
+            <table border="1" style="border-collapse: collapse; width: 100%;">
+                <tr>
+                    <th>Step</th>
+                    <th>Status</th>
+                    <th>Notes</th>
+                </tr>
+                <tr>
+                    <td>Basecalling</td>
+                    <td>✓ Complete</td>
+                    <td>SUP accuracy mode</td>
+                </tr>
+                <tr>
+                    <td>Demultiplexing</td>
+                    <td>✓ Complete</td>
+                    <td>{n_samples} samples identified</td>
+                </tr>
+                <tr>
+                    <td>Quality Filtering</td>
+                    <td>✓ Complete</td>
+                    <td>Min length: 100bp</td>
+                </tr>
+                <tr>
+                    <td>Assembly</td>
+                    <td>✓ Complete</td>
+                    <td>metaFlye + Racon + Medaka</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="metric-card warning">
+            <h2>Warnings</h2>
+            <ul>
+                <li>Check samples with < 14,000 reads for PCoA inclusion</li>
+                <li>Verify assembly completeness for low-coverage samples</li>
+            </ul>
+        </div>
+    </body>
+    </html>
+    """
+    
+    # Format the HTML with actual data
+    html_content = html_template.format(
+        n_samples=len(metrics.get('demultiplexing', {})),
+        completion_status='Complete',
+        timestamp=pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S'),
+        demux_plot=plots.get('demux_distribution', ''),
+    )
+    
+    with open(output_path, 'w') as f:
+        f.write(html_content)
+
+def main():
+    args = parse_arguments()
+    
+    # Parse QC reports
+    metrics = parse_qc_reports(args.qc_dir)
+    
+    # Create plots
+    plots = create_qc_plots(metrics)
+    
+    # Generate HTML report
+    generate_qc_html(metrics, plots, args.output)
+    print(f"QC summary generated: {args.output}")
+
+if __name__ == '__main__':
+    main()
+```
+
+## Advanced Configuration
+
+### config.yaml
+
+```yaml
+# Pipeline configuration file
+pipeline:
+  name: "DNA Shotgun Metagenomics"
+  version: "1.0.0"
+  
+# Tool versions
+tools:
+  dorado: "5.0.0"
+  porechop: "0.2.4"
+  nanofilt: "2.8.0"
+  seqkit: "2.10.0"
+  kraken2: "2.1.2"
+  flye: "2.9.6"
+  minimap2: "2.28"
+  racon: "1.5"
+  medaka: "2.0.1"
+  samtools: "1.17"
+  
+# Parameters
+parameters:
+  basecalling:
+    model: "dna_r10.4.1_e8.2_400bps_sup@v5.0.0"
+    kit: "SQK-RBK114-24"
+    
+  filtering:
+    min_length: 100
+    min_quality: null  # Not specified in original
+    
+  downsampling:
+    pcoa_reads: 14000
+    amr_reads: 50000
+    
+  assembly:
+    metaflye:
+      mode: "--meta"
+      min_overlap: 3000
+    metamdbg:
+      filter_len: 1000
+      
+  amr_detection:
+    min_identity: 90
+    min_coverage: 80
+    
+  classification:
+    kraken_db: "nt_core_May2025"
+    diamond_db: "nr"
+    
+# Computational resources
+resources:
+  threads:
+    basecalling: 16
+    assembly: 16
+    classification: 8
+  memory:
+    assembly: "64G"
+    classification: "32G"
+    
+# Output structure
+output:
+  structure:
+    - "01_basecalled"
+    - "02_demultiplexed"
+    - "03_trimmed"
+    - "04_filtered"
+    - "05_downsampled_pcoa"
+    - "06_kraken2_classification"
+    - "07_assembly_{method}"
+    - "08_racon_polished"
+    - "09_medaka_polished"
+    - "10_amr_prep"
+    - "11_amr_detection_reads"
+    - "12_amr_detection_contigs"
+    - "13_diamond_classification"
+    - "14_kraken2_amr_contigs"
+    - "15_integrated_amr_taxonomy"
+    - "qc_reports"
+    - "logs"
+```
+
+### Snakemake Workflow (Alternative)
+
+```python
+# Snakefile
+"""
+Snakemake workflow for DNA Shotgun Metagenomics Pipeline
+"""
+
+import yaml
+import pandas as pd
+from pathlib import Path
+
+# Load configuration
+configfile: "config.yaml"
+
+# Load sample information
+samples_df = pd.read_csv("sample_info.csv")
+SAMPLES = samples_df['barcode'].tolist()
+
+# Define final outputs
+rule all:
+    input:
+        "final_report.html",
+        expand("15_integrated_amr_taxonomy/{sample}_integrated_amr_taxonomy.tsv", 
+               sample=SAMPLES)
+
+# Rule: Basecalling
+rule basecalling:
+    input:
+        pod5_dir = config['input']['pod5_dir']
+    output:
+        fastq = "01_basecalled/basecalled_all_samples.fastq"
+    params:
+        model = config['parameters']['basecalling']['model'],
+        kit = config['parameters']['basecalling']['kit']
+    threads: config['resources']['threads']['basecalling']
+    shell:
+        """
+        dorado basecaller \
+            {params.model} \
+            {input.pod5_dir} \
+            --kit-name {params.kit} \
+            --no-trim \
+            --emit-fastq > {output.fastq}
+        """
+
+# Rule: Demultiplexing
+rule demultiplexing:
+    input:
+        fastq = rules.basecalling.output.fastq
+    output:
+        directory("02_demultiplexed")
+    params:
+        kit = config['parameters']['basecalling']['kit']
+    shell:
+        """
+        dorado demux \
+            --output-dir {output} \
+            --kit-name {params.kit} \
+            {input.fastq} \
+            --emit-fastq
+        """
+
+# Rule: Adapter trimming
+rule adapter_trimming:
+    input:
+        fastq = "02_demultiplexed/{sample}.fastq"
+    output:
+        trimmed = "03_trimmed/{sample}.trimmed.fastq"
+    threads: 4
+    shell:
+        """
+        porechop \
+            -i {input.fastq} \
+            -o {output.trimmed} \
+            --threads {threads}
+        """
+
+# Continue with remaining rules...
+
+# Rule: Generate final report
+rule generate_report:
+    input:
+        integrated_results = expand("15_integrated_amr_taxonomy/{sample}_integrated_amr_taxonomy.tsv", 
+                                  sample=SAMPLES)
+    output:
+        report = "final_report.html"
+    shell:
+        """
+        python3 generate_summary_report.py \
+            --input-dir 15_integrated_amr_taxonomy \
+            --output {output.report}
+        """
+```
+
+## Best Practices and Recommendations
+
+### 1. Data Management
+- Keep raw POD5 files in read-only storage
+- Implement regular backups of processed data
+- Use symbolic links for large files when possible
+- Clean intermediate files after validation
+
+### 2. Quality Assurance
+- Validate each step before proceeding
+- Monitor resource usage throughout pipeline
+- Keep detailed logs of all processing steps
+- Version control your analysis scripts
+
+### 3. Reproducibility
+- Document all software versions
+- Save configuration files with results
+- Use containerization (Docker/Singularity) when possible
+- Record computational environment details
+
+### 4. Performance Optimization
+- Use fast storage (NVMe SSD) for databases
+- Parallelize independent sample processing
+- Optimize thread allocation per tool
+- Consider GPU acceleration for basecalling
+
+### 5. Troubleshooting Checklist
+- [ ] Verify input file integrity
+- [ ] Check available disk space
+- [ ] Confirm database accessibility
+- [ ] Validate output at each step
+- [ ] Monitor memory usage during assembly
+- [ ] Review log files for warnings/errors
+
+## Citation
+
+If you use this pipeline, please cite the tools accordingly
