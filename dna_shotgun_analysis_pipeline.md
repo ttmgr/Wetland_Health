@@ -34,7 +34,7 @@ This document provides a comprehensive workflow for DNA shotgun metagenomics ana
 
 ```mermaid
 graph TD
-    A[Raw POD5 Data] --> B[Basecalling<br/>Dorado]
+     A[Raw POD5 Data] --> B[Basecalling<br/>Dorado]
     B --> C[Demultiplexing]
     C --> D[Adapter/Barcode Trimming<br/>Porechop]
     D --> E[Quality/Length Filtering<br/>NanoFilt]
@@ -46,13 +46,24 @@ graph TD
     I --> K[Racon Polishing<br/>3 rounds]
     K --> L[Medaka Polishing]
     J --> M[Medaka Polishing]
-    E --> N[AMR Detection<br/>on Reads]
-    L --> O[AMR Detection<br/>on Contigs]
+    
+    E --> N[AMR Detection on Reads<br/>AMRFinderPlus]
+    L --> O[AMR Detection on Contigs<br/>AMRFinderPlus]
     M --> O
-    N --> P[Minimap2 Alignment<br/>to NT Database]
-    O --> P
-    P --> Q[MEGAN Taxonomic<br/>Classification]
-    Q --> R[AMR-Pathogen<br/>Linkage Report]
+    
+    E --> P1[Minimap2 to NT<br/>ALL reads]
+    L --> P2[Minimap2 to NT<br/>ALL contigs]
+    M --> P2
+    
+    P1 --> Q1[MEGAN Classification<br/>ALL reads]
+    P2 --> Q2[MEGAN Classification<br/>ALL contigs]
+    
+    Q1 --> R[Filter for Pathogens<br/>CZID Pathogen List]
+    Q2 --> R
+    N --> R
+    O --> R
+    
+    R --> S[AMR-Pathogen<br/>Linkage Report]
 ```
 
 ## Pipeline Steps
