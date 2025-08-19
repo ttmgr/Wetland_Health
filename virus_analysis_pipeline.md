@@ -22,6 +22,20 @@ This document provides the workflow for virus analysis from environmental RNA (e
   - NCBI Influenza Virus Database (European sequences, as of 04/03/2023)
   - NCBI non-redundant protein database (NR, accessed May 2025)
 
+```mermaid
+graph TD
+    A[Raw RNA Reads] --> B[Quality Filtering]
+    B --> C{Analysis Type}
+    C -->|AIV Analysis| D[Map to AIV References]
+    C -->|Virome Analysis| E[DIAMOND BLASTx]
+    D --> F[Select Best Reference]
+    F --> G[Variant Calling]
+    G --> H[Consensus Generation]
+    E --> I[Viral Family Classification]
+    I --> J[Abundance Heatmap]
+    H --> K[Complete AIV Genome]
+    J --> L[Virome Profile]
+```
 
 ## Part A: AIV Whole-Genome Sequencing
 
