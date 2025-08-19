@@ -673,104 +673,294 @@ for SAMPLE_DIR in ${ASSEMBLY_DIR}/barcode*; do
 done
 ```
 
-### 15. Taxonomic Classification of AMR-carrying Contigs (DIAMOND)
+Based on your scripts, the AMR gene-pathogen linkage was actually done using **Minimap2 alignment to NT database followed by MEGAN taxonomic classification**, not DIAMOND/Kraken2 directly on AMR contigs. Let me update those sections:
 
-Classify AMR-carrying contigs using DIAMOND.
+### 15. AMR Gene-Pathogen Linkage Analysis
 
-```bash
-#!/bin/bash
-# Taxonomic classification with DIAMOND
+The linkage between AMR genes and their host organisms was determined by aligning reads to the NCBI NT database and taxonomic classification using MEGAN.
 
-# Define variables
-AMR_CONTIGS_DIR="12_amr_detection_contigs"
-DIAMOND_DIR="13_diamond_classification"
-DIAMOND_DB="/path/to/diamond_nr_database"
-THREADS=16
-
-# Create output directory
-mkdir -p ${DIAMOND_DIR}
-
-# Process each sample's AMR contigs
-for SAMPLE_DIR in ${AMR_CONTIGS_DIR}/barcode*; do
-    if [ -d "${SAMPLE_DIR}" ]; then
-        BARCODE=$(basename ${SAMPLE_DIR})
-        AMR_CONTIGS="${SAMPLE_DIR}/${BARCODE}_amr_contigs.fasta"
-        OUTPUT_DIR="${DIAMOND_DIR}/${BARCODE}"
-        
-        if [ ! -f "${AMR_CONTIGS}" ]; then
-            echo "[$(date)] No AMR contigs for ${BARCODE}, skipping..."
-            continue
-        fi
-        
-        mkdir -p ${OUTPUT_DIR}
-        
-        echo "[$(date)] Running DIAMOND on ${BARCODE} AMR contigs..."
-        
-        # Run DIAMOND blastx
-        diamond blastx \
-            --db ${DIAMOND_DB} \
-            --query ${AMR_CONTIGS} \
-            --out "${OUTPUT_DIR}/${BARCODE}_diamond_results.tsv" \
-            --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore staxids \
-            --max-target-seqs 5 \
-            --threads ${THREADS} \
-            --sensitive
-        
-        if [ $? -eq 0 ]; then
-            echo "[$(date)] ${BARCODE} DIAMOND classification completed"
-        fi
-    fi
-done
-```
-
-### 16. Taxonomic Classification of AMR-carrying Contigs (Kraken2)
-
-Alternative classification using Kraken2.
+#### Step 15.1: Alignment to NT Database (Minimap2)
 
 ```bash
 #!/bin/bash
-# Taxonomic classification with Kraken2
+# Align AMR-containing reads to NCBI NT database for taxonomic classification
 
 # Define variables
-AMR_CONTIGS_DIR="12_amr_detection_contigs"
-KRAKEN_CONTIGS_DIR="14_kraken2_amr_contigs"
-KRAKEN_DB="/path/to/kraken2_db/nt_core_May2025"
-THREADS=16
+AMR_READS_DIR="10_amr_prep"  # Directory with AMR-ready reads
+OUTPUT_DIR="15_amr_pathogen_linkage"
+MINIMAP2_NT_DB="/path/to/mm_nt_db_ONT.mmi"  # Pre-indexed NT database for ONT
+THREADS=28
 
-# Create output directory
-mkdir -p ${KRAKEN_CONTIGS_DIR}
+# Create output directories
+mkdir -p ${OUTPUT_DIR}/{fasta,sorted_fasta,minimap2_sam,temp}
 
-# Process each sample's AMR contigs
-for SAMPLE_DIR in ${AMR_CONTIGS_DIR}/barcode*; do
-    if [ -d "${SAMPLE_DIR}" ]; then
-        BARCODE=$(basename ${SAMPLE_DIR})
-        AMR_CONTIGS="${SAMPLE_DIR}/${BARCODE}_amr_contigs.fasta"
-        OUTPUT_FILE="${KRAKEN_CONTIGS_DIR}/${BARCODE}_kraken_output.txt"
-        REPORT_FILE="${KRAKEN_CONTIGS_DIR}/${BARCODE}_kraken_report.txt"
-        
-        if [ ! -f "${AMR_CONTIGS}" ]; then
-            echo "[$(date)] No AMR contigs for ${BARCODE}, skipping..."
-            continue
-        fi
-        
-        echo "[$(date)] Running Kraken2 on ${BARCODE} AMR contigs..."
-        
-        kraken2 \
-            --db ${KRAKEN_DB} \
-            --threads ${THREADS} \
-            --output ${OUTPUT_FILE} \
-            --report ${REPORT_FILE} \
-            --use-names \
-            ${AMR_CONTIGS}
-        
-        if [ $? -eq 0 ]; then
-            echo "[$(date)] ${BARCODE} Kraken2 classification completed"
-        fi
-    fi
+# Process each sample
+for SAMPLE_FASTQ in ${AMR_READS_DIR}/*.amr_ready.fastq; do
+    BARCODE=$(basename ${SAMPLE_FASTQ} .amr_ready.fastq)
+    
+    echo "[$(date)] Processing ${BARCODE}..."
+    
+    # Convert FASTQ to FASTA
+    RAW_FASTA="${OUTPUT_DIR}/fasta/${BARCODE}.fasta"
+    seqtk seq -a ${SAMPLE_FASTQ} > ${RAW_FASTA}
+    
+    # Sort FASTA by read names (required for MEGAN)
+    SORTED_FASTA="${OUTPUT_DIR}/sorted_fasta/${BARCODE}.sorted.fasta"
+    seqkit sort -n -w 0 --quiet ${RAW_FASTA} -o ${SORTED_FASTA}
+    
+    # Run Minimap2 alignment
+    SAM_FILE="${OUTPUT_DIR}/minimap2_sam/${BARCODE}.aligned.sam"
+    LOG_FILE="${OUTPUT_DIR}/minimap2_sam/${BARCODE}.minimap2.log"
+    TMP_DIR="${OUTPUT_DIR}/temp/${BARCODE}"
+    mkdir -p ${TMP_DIR}
+    
+    minimap2 -ax map-ont \
+        -k 19 -w 10 -I 10G -g 5000 -r 2000 -N 100 \
+        --lj-min-ratio 0.5 -A 2 -B 5 -O 5,56 -E 4,1 -z 400,50 \
+        --sam-hit-only \
+        -t ${THREADS} \
+        --split-prefix "${TMP_DIR}/temp_split_idx" \
+        ${MINIMAP2_NT_DB} \
+        ${SORTED_FASTA} > ${SAM_FILE} 2> ${LOG_FILE}
+    
+    echo "[$(date)] Alignment completed for ${BARCODE}"
 done
 ```
 
-### 17. Comparative Taxonomic Assignment of AMR Contigs
+#### Step 15.2: MEGAN Taxonomic Classification
+
+```bash
+#!/bin/bash
+# Convert SAM to RMA and perform taxonomic classification with MEGAN
+
+# Define variables
+SAM_DIR="${OUTPUT_DIR}/minimap2_sam"
+MEGAN_DB="/path/to/megan-nucl-Feb2022.db"
+THREADS=20
+
+# Create MEGAN output directories
+mkdir -p ${OUTPUT_DIR}/{rma_files,r2c_reports,c2c_reports,final_reports}
+
+# Process each aligned SAM file
+for SAM_FILE in ${SAM_DIR}/*.aligned.sam; do
+    BARCODE=$(basename ${SAM_FILE} .aligned.sam)
+    SORTED_FASTA="${OUTPUT_DIR}/sorted_fasta/${BARCODE}.sorted.fasta"
+    RAW_FASTA="${OUTPUT_DIR}/fasta/${BARCODE}.fasta"
+    
+    echo "[$(date)] Running MEGAN analysis for ${BARCODE}..."
+    
+    # Convert SAM to RMA (filtered, 0.01% minimum support)
+    FILTERED_RMA="${OUTPUT_DIR}/rma_files/${BARCODE}.filtered.rma"
+    sam2rma \
+        -i ${SAM_FILE} \
+        -r ${SORTED_FASTA} \
+        -o ${FILTERED_RMA} \
+        -lg -alg longReads \
+        -t ${THREADS} \
+        -mdb ${MEGAN_DB} \
+        -ram readCount \
+        --minSupportPercent 0.01 \
+        -v 2> "${OUTPUT_DIR}/rma_files/${BARCODE}.sam2rma.log"
+    
+    # Extract read-to-class assignments (r2c)
+    R2C_FILE="${OUTPUT_DIR}/r2c_reports/${BARCODE}.NCBI_Taxonomy.r2c.txt"
+    rma2info \
+        -i ${FILTERED_RMA} \
+        -o ${R2C_FILE} \
+        -r2c Taxonomy \
+        -n
+    
+    # Extract class counts (c2c)
+    C2C_FILE="${OUTPUT_DIR}/c2c_reports/${BARCODE}.NCBI_Taxonomy.c2c.txt"
+    rma2info \
+        -i ${FILTERED_RMA} \
+        -c2c Taxonomy \
+        -n -r \
+        -o ${C2C_FILE}
+    
+    # Convert to Kraken-style report
+    READ_COUNT=$(grep -c ">" ${RAW_FASTA})
+    KRAKEN_REPORT="${OUTPUT_DIR}/final_reports/${BARCODE}.ncbi.kreport"
+    MPA_REPORT="${OUTPUT_DIR}/final_reports/${BARCODE}.ncbi.mpa.txt"
+    
+    python3 Convert_MEGAN_RMA_NCBI_c2c.py \
+        --input ${C2C_FILE} \
+        --kreport ${KRAKEN_REPORT} \
+        --mpa ${MPA_REPORT} \
+        --readcount ${READ_COUNT}
+    
+    echo "[$(date)] MEGAN analysis completed for ${BARCODE}"
+done
+```
+
+#### Step 15.3: Link AMR Genes to Host Organisms
+
+```python
+#!/usr/bin/env python3
+# link_amr_to_hosts.py
+"""
+Link AMR genes to their host organisms based on read assignments
+"""
+
+import pandas as pd
+from pathlib import Path
+import argparse
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Link AMR genes to host organisms')
+    parser.add_argument('--amr-results', required=True, help='AMR detection results')
+    parser.add_argument('--r2c-file', required=True, help='MEGAN r2c file')
+    parser.add_argument('--taxonomy-db', required=True, help='NCBI taxonomy database')
+    parser.add_argument('--output', required=True, help='Output file')
+    return parser.parse_args()
+
+def main():
+    args = parse_arguments()
+    
+    # Load AMR detection results
+    amr_df = pd.read_csv(args.amr_results, sep='\t')
+    
+    # Load read-to-taxonomy assignments from MEGAN
+    r2c_data = {}
+    with open(args.r2c_file, 'r') as f:
+        for line in f:
+            parts = line.strip().split('\t')
+            if len(parts) >= 2:
+                read_id = parts[0]
+                tax_id = parts[1]
+                r2c_data[read_id] = tax_id
+    
+    # Link AMR genes to taxonomy
+    amr_df['host_taxid'] = amr_df['sequence_id'].map(r2c_data)
+    
+    # Add taxonomic names (would need taxonomy database lookup)
+    # This is simplified - actual implementation would query NCBI taxonomy
+    
+    # Save results
+    amr_df.to_csv(args.output, sep='\t', index=False)
+    
+    # Summary statistics
+    print(f"Total AMR genes: {len(amr_df)}")
+    print(f"AMR genes with host assignment: {amr_df['host_taxid'].notna().sum()}")
+    print(f"Unique host taxa: {amr_df['host_taxid'].nunique()}")
+
+if __name__ == '__main__':
+    main()
+```
+
+### 16. Generate AMR-Pathogen Linkage Report
+
+```bash
+#!/bin/bash
+# Generate comprehensive AMR-pathogen linkage report
+
+OUTPUT_DIR="15_amr_pathogen_linkage"
+REPORT_DIR="${OUTPUT_DIR}/linkage_reports"
+mkdir -p ${REPORT_DIR}
+
+# Process each sample
+for KRAKEN_REPORT in ${OUTPUT_DIR}/final_reports/*.ncbi.kreport; do
+    BARCODE=$(basename ${KRAKEN_REPORT} .ncbi.kreport)
+    
+    echo "[$(date)] Generating linkage report for ${BARCODE}..."
+    
+    # Parse taxonomic assignments and link to AMR genes
+    python3 generate_amr_linkage_report.py \
+        --amr-results "11_amr_detection_reads/${BARCODE}/${BARCODE}_amr_results.tsv" \
+        --r2c-file "${OUTPUT_DIR}/r2c_reports/${BARCODE}.NCBI_Taxonomy.r2c.txt" \
+        --kraken-report ${KRAKEN_REPORT} \
+        --output "${REPORT_DIR}/${BARCODE}_amr_pathogen_linkage.tsv"
+    
+    # Generate summary statistics
+    echo "Sample: ${BARCODE}" >> "${REPORT_DIR}/summary_stats.txt"
+    echo "----------------------------------------" >> "${REPORT_DIR}/summary_stats.txt"
+    
+    # Count AMR genes per taxonomic level
+    awk -F'\t' 'NR>1 {print $3}' "${REPORT_DIR}/${BARCODE}_amr_pathogen_linkage.tsv" | \
+        sort | uniq -c | sort -rn | head -10 >> "${REPORT_DIR}/summary_stats.txt"
+    
+    echo "" >> "${REPORT_DIR}/summary_stats.txt"
+done
+
+echo "[$(date)] AMR-pathogen linkage analysis complete"
+```
+
+### 17. Visualization of AMR-Pathogen Associations
+
+```python
+#!/usr/bin/env python3
+# visualize_amr_linkage.py
+"""
+Create visualization of AMR gene-pathogen associations
+"""
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+from pathlib import Path
+
+def create_amr_pathogen_heatmap(linkage_dir, output_file):
+    """Create heatmap showing AMR genes across different pathogens"""
+    
+    # Load all linkage files
+    all_data = []
+    for linkage_file in Path(linkage_dir).glob('*_amr_pathogen_linkage.tsv'):
+        df = pd.read_csv(linkage_file, sep='\t')
+        df['sample'] = linkage_file.stem.split('_')[0]
+        all_data.append(df)
+    
+    combined_df = pd.concat(all_data, ignore_index=True)
+    
+    # Create matrix of AMR genes vs pathogens
+    matrix = pd.crosstab(
+        combined_df['pathogen_species'],
+        combined_df['amr_gene'],
+        values=combined_df['read_count'],
+        aggfunc='sum'
+    ).fillna(0)
+    
+    # Filter for most common AMR genes and pathogens
+    top_genes = matrix.sum(axis=0).nlargest(30).index
+    top_pathogens = matrix.sum(axis=1).nlargest(20).index
+    matrix_filtered = matrix.loc[top_pathogens, top_genes]
+    
+    # Create heatmap
+    plt.figure(figsize=(15, 10))
+    sns.heatmap(
+        np.log10(matrix_filtered + 1),
+        cmap='YlOrRd',
+        cbar_kws={'label': 'log10(Read Count + 1)'},
+        xticklabels=True,
+        yticklabels=True
+    )
+    plt.title('AMR Gene Distribution Across Pathogens')
+    plt.xlabel('AMR Gene')
+    plt.ylabel('Pathogen Species')
+    plt.tight_layout()
+    plt.savefig(output_file, dpi=300, bbox_inches='tight')
+    
+    return matrix_filtered
+
+# Run visualization
+if __name__ == '__main__':
+    linkage_dir = '15_amr_pathogen_linkage/linkage_reports'
+    output_file = '15_amr_pathogen_linkage/amr_pathogen_heatmap.pdf'
+    
+    matrix = create_amr_pathogen_heatmap(linkage_dir, output_file)
+    print(f"Heatmap saved to {output_file}")
+    
+    # Save matrix as TSV
+    matrix.to_csv('15_amr_pathogen_linkage/amr_pathogen_matrix.tsv', sep='\t')
+```
+
+This updated approach reflects your actual workflow:
+1. **Minimap2** aligns AMR-containing reads to the NT database
+2. **MEGAN** performs taxonomic classification of the aligned reads
+3. The read-to-taxonomy assignments (r2c) link AMR genes to their host organisms
+4. Results are converted to standard formats (Kraken reports, MPA format) for downstream analysis
+
+### 18. Comparative Taxonomic Assignment of AMR Contigs
 
 Compare and integrate results from multiple classification methods.
 
