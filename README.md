@@ -1,29 +1,36 @@
-# Wetland Metagenomics, Viromics, and Vertebrate DNA by Nanopore Sequencing (PRJEBXXXXX)
+# Wetland Metagenomics, Viromics, and Vertebrate eDNA from European Wetlands (PRJEBXXXXX)
 
 ## Project Overview
 
-This project utilizes metagenomic (DNA), viral metagenomic (viromic), vertebrate 12S rRNA gene, and Avian Influenza Virus (AIV) RNA analysis of environmental water and air samples. The goal is to characterize microbial and viral communities, identify vertebrate species, and detect antimicrobial resistance (AMR) genes and AIV, employing Oxford Nanopore Technologies (ONT) sequencing. This repository contains workflows designed to process raw sequencing data for these analyses.
+This project investigates the microbial and viral communities, vertebrate biodiversity, and prevalence of antimicrobial resistance (AMR) genes in 12 European wetlands across Germany, France, and Spain. Samples were collected from sites categorized by land use (anthropogenic vs. natural) using torpedo-shaped passive water samplers.
 
-## ENA Files: [https://www.ebi.ac.uk/ena/browser/view/PRJEBXXXXX](https://www.ebi.ac.uk/ena/browser/view/PRJEBXXXXX) ---
+From dual DNA/RNA extractions, four parallel analyses were conducted using Oxford Nanopore Technologies sequencing (MinION Mk1D/Mk1C, R10.4.1 flow cells):
 
-**❗ Important First Step ❗**
+1.  **Shotgun Metagenomics (eDNA):** Characterization of microbial communities and AMR genes.
+2.  **Vertebrate Metabarcoding (eDNA):** Identification of local vertebrate fauna using 12S rRNA amplicons.
+3.  **Avian Influenza Virus (AIV) Analysis (eRNA):** Targeted whole-genome sequencing of AIV-positive samples.
+4.  **RNA Viromics (eRNA):** Untargeted analysis of RNA virus communities.
 
-Before using the general pipelines described below, you **must** consult the specific data guides. These guides contain critical information about:
+This repository contains the bioinformatic workflows used to process the sequencing data.
 
-* **Data Access:** Where to find the raw (POD5) and/or processed (FASTQ) data.
-* **Sample Mapping & Barcoding:** Which barcode corresponds to which sample for different sequencing runs. Details on library prep (e.g., RBK114-24 for DNA, SQK-RBK114.24 for AIV) and pooling strategies.
-* **Basecalling/Demultiplexing:** Specific Dorado commands and configurations used for the initial conversion of raw POD5 data to FASTQ files, including required demultiplexing based on barcodes.
+## ENA Files: [https://www.ebi.ac.uk/ena/browser/view/PRJEBXXXXX](https://www.ebi.ac.uk/ena/browser/view/PRJEBXXXXX)
 
-**Find the essential guides here:**
+---
 
-* **DNA Shotgun Data Guide:** [`dna_shotgun_data_guide.md`](./dna_shotgun_data_guide.md)
-    * Describes samples for DNA metagenomic analysis (active water, passive water, air).
-    * Uses **POD5** data format and **Dorado** (v5.0.0, model dna_r10.4.1_e8.2_400bps_sup@v5.0.0) for basecalling/demultiplexing.
-* **AIV (RNA) Data Guide:** [`aiv_rna_data_guide.md`](./aiv_rna_data_guide.md)
-    * Describes samples positive for AIV and processed for RNA sequencing.
-    * Uses **POD5** data format and **Dorado** for basecalling/demultiplexing (primers and adapters removed by Dorado).
+**❗ Bioinformatics - First Steps: Basecalling & QC ❗**
 
-**The pipelines described below assume you have already completed the necessary steps from the relevant guide and have demultiplexed FASTQ files ready for analysis.**
+The pipelines below assume initial data processing has been completed. The following steps are universal or pipeline-specific first actions.
+
+* **1. Basecalling:** Raw nanopore signal data (POD5 format) from all sequencing runs were basecalled using **Dorado v5.0.0** with the super-accuracy model (`dna_r10.4.1_e8.2_400bps_sup@v5.0.0`).
+
+* **2. Demultiplexing & Trimming:** Barcodes and adapters were removed from the basecalled FASTQ files using pipeline-specific tools:
+    * **Shotgun & Virome data:** `Porechop` (v0.2.4)
+    * **12S Vertebrate data:** `OBITools4` (v1.3.1)
+    * **AIV data:** Primers/adapters removed by `Dorado` during basecalling.
+
+* **3. Initial Filtering:** Reads shorter than 100 bp were discarded using `NanoFilt` (v2.8.0) for shotgun and virome datasets. Further specific filtering is detailed in each pipeline.
+
+**The pipelines described below assume you have completed these initial processing steps and have demultiplexed, trimmed FASTQ files ready for analysis.**
 
 ---
 
@@ -31,105 +38,91 @@ Before using the general pipelines described below, you **must** consult the spe
 
 This repository outlines four main analysis pipelines:
 
-1.  **DNA Shotgun Metagenomics:** Processes FASTQ files from environmental DNA samples.
-    * Read Processing: Adapter trimming and quality/length filtering.
-    * Taxonomic Classification: Assigning taxonomy to reads.
-    * Metagenome Assembly: Assembling reads into contigs using two different assemblers (metaFlye, nanoMDBG).
-    * Assembly Polishing: Improving assembly accuracy using Racon and Medaka.
-    * AMR Gene Detection: Identifying antimicrobial resistance genes from reads and contigs.
-    * Taxonomic Origin of AMR: Determining the host of AMR genes on contigs.
-2.  **AIV (RNA) Analysis:** Processes FASTQ files from samples amplified for AIV.
-    * Read Processing: Quality and length filtering.
-    * Alignment: Aligning reads to AIV reference genomes.
-    * Consensus Sequence Generation: Creating a consensus AIV genome for each sample.
-3.  **Viral Metagenomics (Viromics):** Processes FASTQ files from total RNA converted to cDNA.
-    * Read Processing: Adapter trimming and quality filtering.
-    * Metagenome Assembly: Assembling reads into contigs.
-    * Viral Contig Identification: Identifying and classifying viral sequences from the assembly.
-4.  **12S Vertebrate Genomics:** Processes FASTQ files from 12S rRNA gene amplicons.
-    * Read Processing: Primer trimming and quality/length filtering.
-    * Clustering: Grouping similar sequences into Operational Taxonomic Units (OTUs).
-    * Taxonomic Classification: Assigning taxonomy to identify vertebrate species.
+1.  **DNA Shotgun Metagenomics:** Processes FASTQ files from environmental DNA for community analysis, assembly, and AMR/pathogen detection.
+2.  **AIV (RNA) Analysis:** Aligns reads from AIV-positive samples to generate consensus genomes.
+3.  **Viral Metagenomics (Viromics):** Processes cDNA reads from total environmental RNA to characterize the RNA virome.
+4.  **12S Vertebrate Genomics:** Processes 12S rRNA gene amplicons to identify vertebrate species.
 
 ## Tools Used
 
 This project integrates the following key bioinformatics tools:
 
-* **AMRFinderPlus:** Detection of AMR genes (v3.12.8).
-* **BCFtools:** Utilities for variant calling and consensus generation (v1.17).
-* **DIAMOND:** Protein sequence alignment for taxonomic assignment of AMR-carrying contigs.
-* **Dorado:** Basecaller for ONT data (v5.0.0 for DNA, specified version for AIV).
-* **Filtlong:** Quality and length filtering for AIV reads.
-* **Kraken2:** K-mer based taxonomic classification (v2.1.2).
-* **Medaka:** Consensus correction/polishing for assemblies (v2.0.1).
-* **metaFlye:** Long-read assembler for metagenomes (v2.9.6).
-* **Minimap2:** Long-read alignment (v2.28 for polishing DNA assemblies, v2.26 for AIV alignment).
-* **MMseqs2:** High-sensitivity sequence searching for 12S classification.
-* **NanoFilt:** Quality and length filtering for ONT reads (v2.8.0).
-* **nanoMDBG:** Long-read assembler for metagenomes (v1.1).
-* **Porechop:** Adapter and barcode trimming (v0.2.4).
-* **Python Libraries for PCoA:** scikit-bio v0.6.3, Matplotlib v3.10.0, Pandas v2.2.3, NumPy v1.26.4.
-* **Racon:** Consensus correction/polishing for assemblies (v1.5).
-* **SAMtools:** Utilities for SAM/BAM alignment files (v1.17).
-* **Seqkit:** Toolkit for FASTA/Q sequence manipulation (v2.10.0).
-* **VirSorter2:** Identification of viral contigs from assemblies.
+* **Basecalling & QC:**
+    * **Dorado:** Basecaller for ONT data (v5.0.0).
+    * **Porechop:** Adapter and barcode trimming (v0.2.4).
+    * **NanoFilt:** Quality and length filtering for ONT reads (v2.8.0).
+    * **Seqkit:** Toolkit for FASTA/Q sequence manipulation (v2.3.0).
+* **Metagenomics & Assembly:**
+    * **Kraken2:** K-mer based taxonomic classification (v2.1.2).
+    * **metaFlye:** Long-read assembler for metagenomes (v2.9.6).
+    * **nanoMDBG:** Long-read assembler for metagenomes (v1.1).
+    * **Minimap2:** Long-read alignment (v2.24 for polishing, v2.28 for AIV).
+    * **Racon:** Consensus correction/polishing for assemblies (v1.5.0).
+    * **Medaka:** Consensus correction/polishing for assemblies (v1.7.2).
+    * **Prokka:** Prokaryotic genome annotation (v1.14.5).
+* **Pathogen & AMR Analysis:**
+    * **AMRFinderPlus:** Detection of AMR genes (v4.0.23).
+    * **Prodigal:** ORF prediction (v2.6.3).
+    * **DIAMOND:** Protein sequence alignment (v2.1.13).
+    * **MEGAN-CE:** Interactive metagenomic analysis (v6.21.1).
+    * **PlasmidFinder:** Plasmid detection from assemblies (v2.1.6).
+* **Vertebrate & Virome Analysis:**
+    * **OBITools4:** Barcode demultiplexing for amplicons (v1.3.1).
+    * **Cutadapt:** Primer trimming (v4.2).
+    * **VSEARCH:** Sequence analysis toolkit (clustering, chimera removal) (v2.21).
+* **AIV & General Utilities:**
+    * **SAMtools:** Utilities for SAM/BAM alignment files (v1.17).
+    * **BCFtools:** Utilities for variant calling and consensus generation (v1.17).
 
 ## Repository Structure
 
-* `dna_shotgun_data_guide.md`: Essential guide for accessing raw data, sample mapping, barcoding, and basecalling/demultiplexing for DNA shotgun data.
-* `aiv_rna_data_guide.md`: Essential guide for accessing raw data, sample mapping, barcoding, and basecalling/demultiplexing for AIV (RNA) data.
-* `dna_shotgun_analysis_pipeline.md`: Detailed commands and scripts for the DNA shotgun metagenomics analysis workflow.
-* `aiv_rna_analysis_pipeline.md`: Detailed commands and scripts for the AIV (RNA) analysis workflow.
-* `virome_analysis_pipeline.md`: Detailed commands and scripts for the viral metagenomics workflow.
-* `12s_vertebrate_analysis_pipeline.md`: Detailed commands and scripts for the 12S vertebrate analysis workflow.
-* `Installation_tutorial.md`: Step-by-step guide for installing all required tools and databases.
-* `/scripts` (example directory): May contain supplementary helper scripts.
-
-## Installation
-
-For comprehensive installation instructions for all pipeline tools and required databases, please refer to the [`Installation_tutorial.md`](./Installation_tutorial.md) file.
+* `dna_shotgun_analysis_pipeline.md`: Detailed commands for the DNA shotgun metagenomics workflow.
+* `aiv_rna_analysis_pipeline.md`: Detailed commands for the AIV (RNA) analysis workflow.
+* `virome_analysis_pipeline.md`: Detailed commands for the viral metagenomics workflow.
+* `12s_vertebrate_analysis_pipeline.md`: Detailed commands for the 12S vertebrate analysis workflow.
+* `Installation_tutorial.md`: Guide for installing all required tools and databases.
 
 ## Usage Workflow
 
-This section outlines the main steps for processing samples. Detailed commands and scripts can be found in the linked pipeline documents.
-
 ### DNA Shotgun Metagenomics Workflow
 
-1.  **Read Processing:** Sequencing adapters and barcodes are removed, and reads are filtered by length (minimum 100 bp).
-2.  **Taxonomic Classification:** Filtered reads are classified using Kraken2. For Principal Coordinate Analysis (PCoA), reads are first downsampled (e.g., to 14,000 reads per sample).
-3.  **Metagenome Assembly & Polishing:** Assemblies are generated using metaFlye (v2.9.6) (polished with Minimap2 v2.28 and three rounds of Racon v1.5) and nanoMDBG (v1.1). Assemblies from both are further polished with Medaka (v2.0.1).
-4.  **AMR Gene Detection:** AMRFinderPlus (v3.12.8) is used on reads (downsampled to a fixed threshold per sample type) and on nanoMDBG contigs.
-5.  **Taxonomic Origin of AMR on Contigs:** Contigs carrying AMR genes are taxonomically classified using a dual approach with DIAMOND (NCBI nr database) and Kraken2 (NCBI nt_core database). A species assignment requires agreement between both tools.
+1.  **Read Processing:** Reads were demultiplexed and trimmed with Porechop, then filtered to remove reads < 100 bp with NanoFilt.
+2.  **Taxonomic Classification:** Reads were classified using Kraken2 against the NCBI nt_core database. A dual strategy was used:
+    * **For community analysis (beta-diversity):** Samples were rarefied to 87,000 reads using Seqkit.
+    * **For hazard detection (pathogens/AMR):** The complete, non-rarefied dataset was used to maximize sensitivity.
+3.  **Metagenome Assembly & Annotation:** *De novo* assembly was performed with nanoMDBG, chosen over metaFlye because its lack of a minimum read length requirement prevented the >50% data loss that metaFlye would have caused. Assemblies were functionally annotated with Prokka.
+4.  **Pathogen & AMR Gene Detection:**
+    * **Pathogen ID:** Reads and contigs were aligned to nt_core with Minimap2 and assigned taxonomy with MEGAN-CE using a conservative Lowest Common Ancestor (LCA) approach.
+    * **Virulence Factors:** For specific samples (e.g., high *Vibrio cholerae*), reads were screened against the Virulence Factor Database (VFDB) using DIAMOND BLASTx.
+    * **AMR Genes:** AMRFinderPlus (in `--plus` mode with Prodigal for ORF prediction) was run on both reads and contigs.
+    * **AMR Mobility:** Contigs were screened for plasmids using PlasmidFinder.
 
-    *For detailed commands and scripts, see [`dna_shotgun_analysis_pipeline.md`](./dna_shotgun_analysis_pipeline.md).*
+    *For detailed commands, see [`dna_shotgun_analysis_pipeline.md`](./dna_shotgun_analysis_pipeline.md).*
 
 ### AIV (RNA) Analysis Workflow
 
-1.  **Read Processing:** Following basecalling and demultiplexing with Dorado (which also removed primers and adapters), reads are filtered for quality (minimum Phred score >8) and length (>150 bp) using Filtlong.
-2.  **Alignment to Reference Genomes:** Filtered reads are aligned to a comprehensive AIV reference database (European sequences from NCBI Influenza Virus Database as of 04/03/2023) using Minimap2 (v2.26) with the `-ax map-ont` setting.
-3.  **Consensus Sequence Generation:** Alignment files are processed using SAMtools (v1.17). The best reference for each of the eight AIV segments is determined by identifying the reference to which most reads mapped. Consensus sequences for each segment are then generated using BCFtools (v1.17).
+1.  **Read Processing:** After basecalling and demultiplexing with Dorado (which removes primers), reads were quality filtered.
+2.  **Alignment to Reference Genomes:** Filtered reads were aligned to a custom European AIV reference database using Minimap2 (v2.28) with the `-ax map-ont` setting.
+3.  **Consensus Sequence Generation:** SAMtools was used to process alignments and identify the best-matching reference for each of the eight AIV segments. A consensus sequence for each segment was then generated using BCFtools.
 
-    *For detailed commands and scripts, see [`aiv_rna_analysis_pipeline.md`](./aiv_rna_analysis_pipeline.md).*
+    *For detailed commands, see [`aiv_rna_analysis_pipeline.md`](./aiv_rna_analysis_pipeline.md).*
 
 ### Viral Metagenomics (Viromics) Workflow
 
-1.  **Library Prep & Read Processing:** Total RNA is reverse-transcribed to cDNA using SMART-9N primers. After sequencing, reads are trimmed for adapters and filtered for quality.
-2.  **Metagenome Assembly:** Quality-filtered reads are assembled into contigs using an assembler like metaFlye.
-3.  **Viral Contig Identification:** Assembled contigs are processed with VirSorter2 to identify and extract viral sequences.
-4.  **Taxonomic Classification:** The identified viral contigs are then taxonomically classified to determine the composition of the viral community.
+1.  **Library Prep & Read Processing:** RNA was DNase-treated and then converted to cDNA using the **Rapid SMART-9N protocol**, which employs random priming and template switching. Barcoded amplicons were generated and sequenced. Reads were trimmed (Porechop) and filtered (NanoFilt).
+2.  **Taxonomic Classification:** Reads were taxonomically classified by translated alignment using **DIAMOND BLASTx** against the NCBI non-redundant (NR) protein database. Viral hits were tallied to profile the RNA virome of each sample.
 
-    *For detailed commands and scripts, see [`virome_analysis_pipeline.md`](./virome_analysis_pipeline.md).*
+    *For detailed commands, see [`virome_analysis_pipeline.md`](./virome_analysis_pipeline.md).*
 
 ### 12S Vertebrate Genomics Workflow
 
-1.  **Read Processing:** Reads are filtered for quality. Primers specific to the 12S rRNA gene are trimmed from both ends of the reads.
-2.  **Dereplication & Clustering:** Reads are dereplicated (grouping identical sequences) and then clustered into Operational Taxonomic Units (OTUs) based on a similarity threshold (e.g., 98%).
-3.  **Taxonomic Classification:** Representative sequences for each OTU are aligned against a curated 12S vertebrate reference database using MMseqs2 or BLAST to assign a taxonomic identity (e.g., species, family).
+1.  **Library Prep:** A ~97 bp fragment of the 12S rRNA gene was amplified using 12SV05 primers with 9 bp tags. A human-blocking oligonucleotide was included. The final library was prepared with the Ligation Sequencing Kit (SQK-LSK114).
+2.  **Read Processing:** Reads were demultiplexed by their 9 bp tags using **OBITools4**. Primers were trimmed with **Cutadapt**.
+3.  **OTU Clustering & Classification:** The VSEARCH pipeline was used to:
+    * Filter reads by expected error (maxEE 1.0).
+    * Dereplicate sequences and remove singletons.
+    * Remove chimeras.
+    * Cluster sequences into Operational Taxonomic Units (OTUs) at 97% similarity.
+4.  **Taxonomic Assignment:** OTU representative sequences were identified via global alignment against the **MIDORI2** reference database.
 
-    *For detailed commands and scripts, see [`12s_vertebrate_analysis_pipeline.md`](./12s_vertebrate_analysis_pipeline.md).*
-
-**Notes:**
-
-* Replace placeholders in linked files (e.g., paths, sample names, database locations, Medaka models) with your actual information.
-* Adjust thread counts based on your system's resources.
-* This workflow provides a template based on the provided PDF. Refer to individual tool documentation for detailed usage and optimization.
+    *For detailed commands, see [`12s_vertebrate_analysis_pipeline.md`](./12s_vertebrate_analysis_pipeline.md).*
