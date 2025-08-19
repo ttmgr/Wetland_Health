@@ -33,7 +33,6 @@ This document provides a comprehensive workflow for DNA shotgun metagenomics ana
 ## Workflow Overview
 
 ```mermaid
-%%{init: {'theme':'base'}}%%
 graph TD
     A[Raw POD5 Data] --> B[Basecalling]
     B --> C[Demultiplexing]
