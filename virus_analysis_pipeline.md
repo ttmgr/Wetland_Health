@@ -24,17 +24,19 @@ This document provides the workflow for virus analysis from environmental RNA (e
 
 ```mermaid
 graph TD
-    A[Raw RNA Reads] --> B[Quality Filtering]
-    B --> C{Analysis Type}
-    C -->|AIV Analysis| D[Map to AIV References]
-    C -->|Virome Analysis| E[DIAMOND BLASTx]
-    D --> F[Select Best Reference]
-    F --> G[Variant Calling]
-    G --> H[Consensus Generation]
-    E --> I[Viral Family Classification]
-    I --> J[Abundance Heatmap]
-    H --> K[Complete AIV Genome]
-    J --> L[Virome Profile]
+    A[Raw RNA Reads]:::lightNode --> B[Quality Filtering]:::lightNode
+    B --> C{Analysis Type}:::lightNode
+    C -->|AIV Analysis| D[Map to AIV References]:::lightNode
+    C -->|Virome Analysis| E[DIAMOND BLASTx]:::lightNode
+    D --> F[Select Best Reference]:::lightNode
+    F --> G[Variant Calling]:::lightNode
+    G --> H[Consensus Generation]:::lightNode
+    E --> I[Viral Family Classification]:::lightNode
+    I --> J[Abundance Heatmap]:::lightNode
+    H --> K[Complete AIV Genome]:::lightNode
+    J --> L[Virome Profile]:::lightNode
+    
+    classDef lightNode fill:#f9f9f9,stroke:#333,stroke-width:2px,color:#000
 ```
 
 ## Part A: AIV Whole-Genome Sequencing
