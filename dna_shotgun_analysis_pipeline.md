@@ -218,7 +218,7 @@ done
 
 ### 5. Read Downsampling for PCoA (Seqkit)
 
-Randomly downsamples to 14,000 reads per sample for PCoA analysis using Seqkit v2.10.0.
+Randomly downsamples to 87,000 reads per sample for PCoA analysis using Seqkit v2.10.0.
 
 ```bash
 #!/bin/bash
@@ -227,7 +227,7 @@ Randomly downsamples to 14,000 reads per sample for PCoA analysis using Seqkit v
 # Process filtered files
 FILTERED_DIR="04_filtered"
 DOWNSAMPLED_DIR="05_downsampled_pcoa"
-TARGET_READS=14000
+TARGET_READS=87000
 RANDOM_SEED=11
 
 # Create output directory
@@ -236,7 +236,7 @@ mkdir -p ${DOWNSAMPLED_DIR}
 # Process each filtered file
 for FILTERED_FILE in ${FILTERED_DIR}/*.filtered.fastq; do
     BARCODE=$(basename ${FILTERED_FILE} .filtered.fastq)
-    OUTPUT_FILE="${DOWNSAMPLED_DIR}/${BARCODE}.14k.fastq"
+    OUTPUT_FILE="${DOWNSAMPLED_DIR}/${BARCODE}.87k.fastq"
     
     # Check read count
     READ_COUNT=$(seqkit stats -T ${FILTERED_FILE} | awk 'NR==2 {print $4}' | sed 's/,//g')
@@ -322,7 +322,6 @@ for FILTERED_FILE in ${FILTERED_DIR}/*.filtered.fastq; do
         --out-dir ${OUTPUT_DIR} \
         --meta \
         --threads ${THREADS} \
-        --min-overlap 3000
     
     if [ $? -eq 0 ]; then
         echo "[$(date)] ${BARCODE} assembly completed"
@@ -614,11 +613,10 @@ for FASTA_FILE in ${AMR_PREP_DIR}/*.amr_ready.fasta; do
     echo "[$(date)] Running AMR detection on ${BARCODE} reads..."
     
     # Example using ABRicate or similar tool
-    abricate \
+    amrfinder \
         --db ${AMR_DB} \
         --threads ${THREADS} \
-        --minid 90 \
-        --mincov 80 \
+        --plus \
         ${FASTA_FILE} > "${OUTPUT_DIR}/${BARCODE}_amr_results.tsv"
     
     if [ $? -eq 0 ]; then
