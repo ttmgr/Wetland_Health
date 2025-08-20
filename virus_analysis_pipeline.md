@@ -1,5 +1,3 @@
-You're absolutely right. Let me create a clean, focused markdown file based on what you actually did:
-
 # Virus Analysis Pipeline for RNA Sequencing
 
 This document provides the workflow for virus analysis from environmental RNA (eRNA) samples, including AIV whole-genome sequencing and virome taxonomic classification.
