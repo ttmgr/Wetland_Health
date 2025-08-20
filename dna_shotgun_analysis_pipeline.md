@@ -28,7 +28,7 @@ This document provides a comprehensive workflow for DNA shotgun metagenomics ana
 
 - All necessary tools installed as per [`Installation_tutorial.md`](./Installation_tutorial.md)
 - Raw POD5 data available
-- Consult [`dna_shotgun_data_guide.md`](./dna_shotgun_data_guide.md) for sample-specific information
+- Consult [`README.md`](./README.md) for sample-specific information
 
 ## Workflow Overview
 
