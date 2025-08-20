@@ -22,7 +22,6 @@ This document provides a comprehensive workflow for DNA shotgun metagenomics ana
    - [14. AMR Gene Detection on Contigs](#14-amr-gene-detection-on-assembled-contigs)
    - [15. Taxonomic Classification of AMR Contigs - DIAMOND](#15-taxonomic-classification-of-amr-carrying-contigs-diamond)
    - [16. Taxonomic Classification of AMR Contigs - Kraken2](#16-taxonomic-classification-of-amr-carrying-contigs-kraken2)
-   - [17. Comparative Taxonomic Assignment](#17-comparative-taxonomic-assignment-of-amr-contigs)
 
 ## Prerequisites
 
