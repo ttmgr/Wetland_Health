@@ -17,6 +17,96 @@ This repository contains the bioinformatic workflows used to process the sequenc
 
 ---
 
+## Sample Information and Barcoding Scheme
+
+**⚠️ IMPORTANT: This table is essential for reproducing our analyses. It maps sampling locations to their corresponding barcodes and FASTQ files.**
+
+### Site Coding System
+Sites are coded using a **[Country][Environment][Number]** format:
+- **Country:** G (Germany), F (France), S (Spain)
+- **Environment:** A (Anthropogenic), N (Natural)
+- **Number:** Sequential identification within each category
+
+### DNA Samples (Shotgun Metagenomics & 12S Vertebrate)
+
+| Location | Sample ID | Barcode | FASTQ Filename |
+|----------|-----------|---------|----------------|
+| **Germany - Anthropogenic** | | | |
+| GA1 | GA1_1 | [BC##] | [filename.fastq.gz] |
+| GA1 | GA1_2 | [BC##] | [filename.fastq.gz] |
+| GA2 | GA2_1 | [BC##] | [filename.fastq.gz] |
+| GA2 | GA2_2 | [BC##] | [filename.fastq.gz] |
+| GA3 | GA3_1 | [BC##] | [filename.fastq.gz] |
+| GA3 | GA3_2 | [BC##] | [filename.fastq.gz] |
+| **Germany - Natural** | | | |
+| GN1 | GN1_1 | [BC##] | [filename.fastq.gz] |
+| GN1 | GN1_2 | [BC##] | [filename.fastq.gz] |
+| GN2 | GN2_1 | [BC##] | [filename.fastq.gz] |
+| GN2 | GN2_2 | [BC##] | [filename.fastq.gz] |
+| GN3 | GN3_1 | [BC##] | [filename.fastq.gz] |
+| GN3 | GN3_2 | [BC##] | [filename.fastq.gz] |
+| **France - Anthropogenic** | | | |
+| FA1 | FA1_1 | [BC##] | [filename.fastq.gz] |
+| FA1 | FA1_2 | [BC##] | [filename.fastq.gz] |
+| FA2 | FA2_1 | [BC##] | [filename.fastq.gz] |
+| FA2 | FA2_2 | [BC##] | [filename.fastq.gz] |
+| **France - Natural** | | | |
+| FN1 | FN1_1 | [BC##] | [filename.fastq.gz] |
+| FN1 | FN1_2 | [BC##] | [filename.fastq.gz] |
+| **Spain - Anthropogenic** | | | |
+| SA1 | SA1_1 | [BC##] | [filename.fastq.gz] |
+| SA1 | SA1_2 | [BC##] | [filename.fastq.gz] |
+| **Spain - Natural** | | | |
+| SN1 | SN1_1 | [BC##] | [filename.fastq.gz] |
+| SN1 | SN1_2 | [BC##] | [filename.fastq.gz] |
+| SN2 | SN2_1 | [BC##] | [filename.fastq.gz] |
+| SN2 | SN2_2 | [BC##] | [filename.fastq.gz] |
+
+### RNA Samples (AIV & Viromics)
+
+| Location | Sample ID | Barcode | FASTQ Filename |
+|----------|-----------|---------|----------------|
+| **Germany - Anthropogenic** | | | |
+| GA1 | GA1 | [BC##] | [filename.fastq.gz] |
+| GA2 | GA2 | [BC##] | [filename.fastq.gz] |
+| GA3 | GA3 | [BC##] | [filename.fastq.gz] |
+| **Germany - Natural** | | | |
+| GN1 | GN1 | [BC##] | [filename.fastq.gz] |
+| GN2 | GN2 | [BC##] | [filename.fastq.gz] |
+| GN3 | GN3 | [BC##] | [filename.fastq.gz] |
+| **France - Anthropogenic** | | | |
+| FA1 | FA1 | [BC##] | [filename.fastq.gz] |
+| FA2 | FA2 | [BC##] | [filename.fastq.gz] |
+| **France - Natural** | | | |
+| FN1 | FN1 | [BC##] | [filename.fastq.gz] |
+| **Spain - Anthropogenic** | | | |
+| SA1 | SA1 | [BC##] | [filename.fastq.gz] |
+| **Spain - Natural** | | | |
+| SN1 | SN1 | [BC##] | [filename.fastq.gz] |
+| SN2 | SN2 | [BC##] | [filename.fastq.gz] |
+
+### Site Descriptions
+- **Anthropogenic sites (n=6):**
+  - GA1: Urban landfill pond
+  - GA2: Village wetland  
+  - GA3: Urban pond
+  - FA1: Intensive duck farm
+  - FA2: Intensive duck farm
+  - SA1: Sewage treatment plant
+  
+- **Natural sites (n=6):**
+  - GN1-3: Coastal marshes/peat bogs
+  - FN1: Wetland reserve
+  - SN1-2: Wetland reserves
+
+### Notes:
+- DNA samples have duplicate extractions (_1 and _2 suffixes)
+- RNA samples have single extractions per site
+- All sites are lentic (non-flowing) wetlands
+- Raw FASTQ files are available at ENA under accession PRJEBXXXXX
+
+---
+
 **❗ Bioinformatics - First Steps: Basecalling & QC ❗**
 
 The pipelines below assume initial data processing has been completed. The following steps are universal or pipeline-specific first actions.
