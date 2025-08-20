@@ -27,10 +27,10 @@ Sites are coded using a **[Country][Environment][Number]** format:
 - **Environment:** A (Anthropogenic), N (Natural)
 - **Number:** Sequential identification within each category
 
-### DNA Samples (Shotgun Metagenomics & 12S Vertebrate)
+### 1. DNA Shotgun Metagenomics Samples
 
-| Location | Sample ID | Barcode | FASTQ Filename |
-|----------|-----------|---------|----------------|
+| Location | Sample ID | ONT Barcode | FASTQ Filename |
+|----------|-----------|-------------|----------------|
 | **Germany - Anthropogenic** | | | |
 | GA1 | GA1_1 | [BC##] | [filename.fastq.gz] |
 | GA1 | GA1_2 | [BC##] | [filename.fastq.gz] |
@@ -62,10 +62,56 @@ Sites are coded using a **[Country][Environment][Number]** format:
 | SN2 | SN2_1 | [BC##] | [filename.fastq.gz] |
 | SN2 | SN2_2 | [BC##] | [filename.fastq.gz] |
 
-### RNA Samples (AIV & Viromics)
+### 2. 12S Vertebrate Metabarcoding Samples
 
-| Location | Sample ID | Barcode | FASTQ Filename |
-|----------|-----------|---------|----------------|
+| Location | Sample ID | ONT Barcode | 9bp Tag | FASTQ Filename |
+|----------|-----------|-------------|---------|----------------|
+| **Germany - Anthropogenic** | | | | |
+| GA1 | GA1 | [BC##] | [Tag###] | [filename.fastq.gz] |
+| GA2 | GA2 | [BC##] | [Tag###] | [filename.fastq.gz] |
+| GA3 | GA3 | [BC##] | [Tag###] | [filename.fastq.gz] |
+| **Germany - Natural** | | | | |
+| GN1 | GN1 | [BC##] | [Tag###] | [filename.fastq.gz] |
+| GN2 | GN2 | [BC##] | [Tag###] | [filename.fastq.gz] |
+| GN3 | GN3 | [BC##] | [Tag###] | [filename.fastq.gz] |
+| **France - Anthropogenic** | | | | |
+| FA1 | FA1 | [BC##] | [Tag###] | [filename.fastq.gz] |
+| FA2 | FA2 | [BC##] | [Tag###] | [filename.fastq.gz] |
+| **France - Natural** | | | | |
+| FN1 | FN1 | [BC##] | [Tag###] | [filename.fastq.gz] |
+| **Spain - Anthropogenic** | | | | |
+| SA1 | SA1 | [BC##] | [Tag###] | [filename.fastq.gz] |
+| **Spain - Natural** | | | | |
+| SN1 | SN1 | [BC##] | [Tag###] | [filename.fastq.gz] |
+| SN2 | SN2 | [BC##] | [Tag###] | [filename.fastq.gz] |
+
+### 3. AIV (RNA) Analysis Samples
+
+| Location | Sample ID | ONT Barcode | AIV Status | FASTQ Filename |
+|----------|-----------|-------------|------------|----------------|
+| **Germany - Anthropogenic** | | | | |
+| GA1 | GA1 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
+| GA2 | GA2 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
+| GA3 | GA3 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
+| **Germany - Natural** | | | | |
+| GN1 | GN1 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
+| GN2 | GN2 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
+| GN3 | GN3 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
+| **France - Anthropogenic** | | | | |
+| FA1 | FA1 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
+| FA2 | FA2 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
+| **France - Natural** | | | | |
+| FN1 | FN1 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
+| **Spain - Anthropogenic** | | | | |
+| SA1 | SA1 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
+| **Spain - Natural** | | | | |
+| SN1 | SN1 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
+| SN2 | SN2 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
+
+### 4. RNA Viromics Samples
+
+| Location | Sample ID | ONT Barcode | FASTQ Filename |
+|----------|-----------|-------------|----------------|
 | **Germany - Anthropogenic** | | | |
 | GA1 | GA1 | [BC##] | [filename.fastq.gz] |
 | GA2 | GA2 | [BC##] | [filename.fastq.gz] |
@@ -100,28 +146,12 @@ Sites are coded using a **[Country][Environment][Number]** format:
   - SN1-2: Wetland reserves
 
 ### Notes:
-- DNA samples have duplicate extractions (_1 and _2 suffixes)
-- RNA samples have single extractions per site
+- **DNA shotgun samples:** Duplicate extractions per site (_1 and _2 suffixes)
+- **12S, AIV, Virome samples:** Single extraction per site (location = sample ID)
+- **12S samples:** Include both ONT barcodes and 9bp tags for demultiplexing
+- **AIV samples:** Only AIV-positive samples proceed to consensus genome generation
 - All sites are lentic (non-flowing) wetlands
 - Raw FASTQ files are available at ENA under accession PRJEBXXXXX
-
----
-
-**❗ Bioinformatics - First Steps: Basecalling & QC ❗**
-
-The pipelines below assume initial data processing has been completed. The following steps are universal or pipeline-specific first actions.
-
-* **1. Basecalling:** Raw nanopore signal data (POD5 format) from all sequencing runs were basecalled using **Dorado v5.0.0** with the super-accuracy model (`dna_r10.4.1_e8.2_400bps_sup@v5.0.0`).
-
-* **2. Demultiplexing & Trimming:** Barcodes and adapters were removed from the basecalled FASTQ files using pipeline-specific tools:
-    * **Shotgun & Virome data:** `Porechop` (v0.2.4)
-    * **12S Vertebrate data:** `OBITools4` (v1.3.1)
-    * **AIV data:** Primers/adapters removed by `Dorado` during basecalling.
-
-* **3. Initial Filtering:** Reads shorter than 100 bp were discarded using `NanoFilt` (v2.8.0) for shotgun and virome datasets. Further specific filtering is detailed in each pipeline.
-
-**The pipelines described below assume you have completed these initial processing steps and have demultiplexed, trimmed FASTQ files ready for analysis.**
-
 ---
 
 ## Analysis Pipeline Overview
