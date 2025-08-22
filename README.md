@@ -32,35 +32,35 @@ Sites are coded using a **[Country][Environment][Number]** format:
 | Location | Sample ID | ONT Barcode | FASTQ Filename |
 |----------|-----------|-------------|----------------|
 | **Germany - Anthropogenic** | | | |
-| GA1 | GA1_1 | [BC##] | [filename.fastq.gz] |
-| GA1 | GA1_2 | [BC##] | [filename.fastq.gz] |
-| GA2 | GA2_1 | [BC##] | [filename.fastq.gz] |
-| GA2 | GA2_2 | [BC##] | [filename.fastq.gz] |
-| GA3 | GA3_1 | [BC##] | [filename.fastq.gz] |
-| GA3 | GA3_2 | [BC##] | [filename.fastq.gz] |
+| GA1 | GA1.1 | [BC##] | [filename.fastq.gz] |
+| GA1 | GA1.2 | [BC##] | [filename.fastq.gz] |
+| GA2 | GA2.1 | [BC##] | [filename.fastq.gz] |
+| GA2 | GA2.2 | [BC##] | [filename.fastq.gz] |
+| GA3 | GA3.1 | [BC##] | [filename.fastq.gz] |
+| GA3 | GA3.2 | [BC##] | [filename.fastq.gz] |
 | **Germany - Natural** | | | |
-| GN1 | GN1_1 | [BC##] | [filename.fastq.gz] |
-| GN1 | GN1_2 | [BC##] | [filename.fastq.gz] |
-| GN2 | GN2_1 | [BC##] | [filename.fastq.gz] |
-| GN2 | GN2_2 | [BC##] | [filename.fastq.gz] |
-| GN3 | GN3_1 | [BC##] | [filename.fastq.gz] |
-| GN3 | GN3_2 | [BC##] | [filename.fastq.gz] |
+| GN1 | GN1.1 | [BC##] | [filename.fastq.gz] |
+| GN1 | GN1.2 | [BC##] | [filename.fastq.gz] |
+| GN2 | GN2.1 | [BC##] | [filename.fastq.gz] |
+| GN2 | GN2.2 | [BC##] | [filename.fastq.gz] |
+| GN3 | GN3.1 | [BC##] | [filename.fastq.gz] |
+| GN3 | GN3.2 | [BC##] | [filename.fastq.gz] |
 | **France - Anthropogenic** | | | |
-| FA1 | FA1_1 | [BC##] | [filename.fastq.gz] |
-| FA1 | FA1_2 | [BC##] | [filename.fastq.gz] |
-| FA2 | FA2_1 | [BC##] | [filename.fastq.gz] |
-| FA2 | FA2_2 | [BC##] | [filename.fastq.gz] |
+| FA1 | FA1.1 | [BC##] | [filename.fastq.gz] |
+| FA1 | FA1.2 | [BC##] | [filename.fastq.gz] |
+| FA2 | FA2.1 | [BC##] | [filename.fastq.gz] |
+| FA2 | FA2.2 | [BC##] | [filename.fastq.gz] |
 | **France - Natural** | | | |
-| FN1 | FN1_1 | [BC##] | [filename.fastq.gz] |
-| FN1 | FN1_2 | [BC##] | [filename.fastq.gz] |
+| FN1 | FN1.1 | [BC##] | [filename.fastq.gz] |
+| FN1 | FN1.2 | [BC##] | [filename.fastq.gz] |
 | **Spain - Anthropogenic** | | | |
-| SA1 | SA1_1 | [BC##] | [filename.fastq.gz] |
-| SA1 | SA1_2 | [BC##] | [filename.fastq.gz] |
+| SA1 | SA1.1 | [BC##] | [filename.fastq.gz] |
+| SA1 | SA1.2 | [BC##] | [filename.fastq.gz] |
 | **Spain - Natural** | | | |
-| SN1 | SN1_1 | [BC##] | [filename.fastq.gz] |
-| SN1 | SN1_2 | [BC##] | [filename.fastq.gz] |
-| SN2 | SN2_1 | [BC##] | [filename.fastq.gz] |
-| SN2 | SN2_2 | [BC##] | [filename.fastq.gz] |
+| SN1 | SN1.1 | [BC##] | [filename.fastq.gz] |
+| SN1 | SN1.2 | [BC##] | [filename.fastq.gz] |
+| SN2 | SN2.1 | [BC##] | [filename.fastq.gz] |
+| SN2 | SN2.2 | [BC##] | [filename.fastq.gz] |
 
 ### 2. 12S Vertebrate Metabarcoding Samples
 
