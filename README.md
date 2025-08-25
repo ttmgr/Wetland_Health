@@ -185,7 +185,6 @@ flowchart TD
     
     D6 --> D6a[Full Dataset]
     D6a --> D6b[De novo Assembly<br/>nanoMDBG v1.1]
-    D6b --> D6c[Annotation<br/>Prokka v1.14.5]
     D6b --> D6c[Pathogen ID - Contigs<br/>Minimap2 v2.24 +<br/>MEGAN-CE v6.21.1]
     D6a --> D6h[Pathogen ID - Reads<br/>Minimap2 v2.24 +<br/>MEGAN-CE v6.21.1]
     D6b --> D6d[AMR Detection<br/>AMRFinderPlus v4.0.23<br/>+ Prodigal v2.6.3]
