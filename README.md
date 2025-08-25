@@ -2,8 +2,7 @@
 
 ## Project Overview
 
-This project investigates the microbial and viral communities, vertebrate biodiversity, and prevalence of antimicrobial resistance (AMR) genes in 12 European wetlands across Germany, France, and Spain. Samples were collected from sites categorized by land use (anthropogenic vs. natural) using torpedo-shaped passive water samplers.
-
+This project investigates the microbial and viral communities, vertebrate biodiversity, and prevalence of antimicrobial resistance (AMR) genes in 12 European wetlands across Germany, France, and Spain, along the [east atlantic flyway](https://earth.google.com/web/@50.30246982,5.75732731,1000.86387688a,8521661.66667581d,30y,0h,0t,0r/data=CgRCAggBMikKJwolCiExOW5PaHAxTGtOWlFQSVVMaDVYazNhbHNuS1kwblpFTGQgAToDCgEwQgIIAEoICMvq4YQEEAE), a major bird migration corridor. Samples were collected from sites categorized by land use (anthropogenic vs. natural) using torpedo-shaped passive water samplers.
 From dual DNA/RNA extractions, four parallel analyses were conducted using Oxford Nanopore Technologies sequencing (MinION Mk1D/Mk1C, R10.4.1 flow cells):
 
 1.  **Shotgun Metagenomics (eDNA):** Characterization of microbial communities and AMR genes.
