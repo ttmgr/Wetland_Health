@@ -12,7 +12,8 @@ From dual DNA/RNA extractions, four parallel analyses were conducted using Oxfor
 
 This repository contains the bioinformatic workflows used to process the sequencing data.
 
-## ENA Files: [https://www.ebi.ac.uk/ena/browser/view/PRJEB96272](https://www.ebi.ac.uk/ena/browser/view/PRJEB96272)
+## ENA Files: [https://www.ebi.ac.uk/ena/browser/view/PRJEB96272](https://www.ebi.ac.uk/ena/browser/view/PRJEB96272) for Metagenomics and RNA Virome
+## AIV Files: GSAID EPI4628641 (Note: Account required for download!)
 
 ---
 
@@ -107,7 +108,28 @@ Sites are coded using a **[Country][Environment][Number]** format:
 | SN2 | SN2 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
 
 ### 4. RNA Viromics Samples
+### 4. RNA Viromics Samples
 
+| Location | Sample ID | ONT Barcode | FASTQ Filename |
+|----------|-----------|-------------|----------------|
+| **Germany - Anthropogenic** | | | |
+| GA1 | GA1 | [BC##] | [filename.fastq.gz] |
+| GA2 | GA2 | [BC##] | [filename.fastq.gz] |
+| GA3 | GA3 | [BC##] | [filename.fastq.gz] |
+| **Germany - Natural** | | | |
+| GN1 | GN1 | [BC##] | [filename.fastq.gz] |
+| GN2 | GN2 | [BC##] | [filename.fastq.gz] |
+| GN3 | GN3 | [BC##] | [filename.fastq.gz] |
+| **France - Anthropogenic** | | | |
+| FA1 | FA1 | [BC##] | [filename.fastq.gz] |
+| FA2 | FA2 | [BC##] | [filename.fastq.gz] |
+| **France - Natural** | | | |
+| FN1 | FN1 | [BC##] | [filename.fastq.gz] |
+| **Spain - Anthropogenic** | | | |
+| SA1 | SA1 | [BC##] | [filename.fastq.gz] |
+| **Spain - Natural** | | | |
+| SN1 | SN1 | [BC##] | [filename.fastq.gz] |
+| SN2 | SN2 | [BC##] | [filename.fastq.gz] |
 | Location | Sample ID | ONT Barcode | FASTQ Filename |
 |----------|-----------|-------------|----------------|
 | **Germany - Anthropogenic** | | | |
