@@ -186,11 +186,11 @@ flowchart TD
     D6 --> D6a[Full Dataset]
     D6a --> D6b[De novo Assembly<br/>nanoMDBG v1.1]
     D6b --> D6c[Annotation<br/>Prokka v1.14.5]
-    D6c --> D6d[Pathogen ID - Contigs<br/>Minimap2 v2.24 +<br/>MEGAN-CE v6.21.1]
+    D6b --> D6c[Pathogen ID - Contigs<br/>Minimap2 v2.24 +<br/>MEGAN-CE v6.21.1]
     D6a --> D6h[Pathogen ID - Reads<br/>Minimap2 v2.24 +<br/>MEGAN-CE v6.21.1]
-    D6c --> D6e[AMR Detection<br/>AMRFinderPlus v4.0.23<br/>+ Prodigal v2.6.3]
-    D6c --> D6f[Plasmid Detection<br/>PlasmidFinder v2.1.6]
-    D6a --> D6g[Virulence Factors<br/>DIAMOND v2.1.13<br/>vs VFDB]
+    D6b --> D6d[AMR Detection<br/>AMRFinderPlus v4.0.23<br/>+ Prodigal v2.6.3]
+    D6b --> D6e[Plasmid Detection<br/>PlasmidFinder v2.1.6]
+    D6a --> D6f[Virulence Factors<br/>DIAMOND v2.1.13<br/>vs VFDB]
     
     %% 12S Pipeline
     E --> E1[PCR Amplification<br/>12SV05 primers<br/>+ human blocking]
