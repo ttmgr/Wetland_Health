@@ -12,7 +12,7 @@ From dual DNA/RNA extractions, four parallel analyses were conducted using Oxfor
 
 This repository contains the bioinformatic workflows used to process the sequencing data.
 
-## ENA Files: [https://www.ebi.ac.uk/ena/browser/view/PRJEBXXXXX](https://www.ebi.ac.uk/ena/browser/view/PRJEBXXXXX)
+## ENA Files: [https://www.ebi.ac.uk/ena/browser/view/PRJEB96272](https://www.ebi.ac.uk/ena/browser/view/PRJEB96272)
 
 ---
 
@@ -27,39 +27,38 @@ Sites are coded using a **[Country][Environment][Number]** format:
 - **Number:** Sequential identification within each category
 
 ### 1. DNA Shotgun Metagenomics Samples
-
 | Location | Sample ID | ONT Barcode | FASTQ Filename |
 |----------|-----------|-------------|----------------|
 | **Germany - Anthropogenic** | | | |
-| GA1 | GA1.1 | [BC##] | [filename.fastq.gz] |
-| GA1 | GA1.2 | [BC##] | [filename.fastq.gz] |
-| GA2 | GA2.1 | [BC##] | [filename.fastq.gz] |
-| GA2 | GA2.2 | [BC##] | [filename.fastq.gz] |
-| GA3 | GA3.1 | [BC##] | [filename.fastq.gz] |
-| GA3 | GA3.2 | [BC##] | [filename.fastq.gz] |
+| GA1 | GA1.1 | BC01 | SQK-RBK114-24_barcode01.GA1.1.fastq.tar.gz |
+| GA1 | GA1.2 | BC01 | SQK-RBK114-24_barcode01.GA1.2.fastq.tar.gz |
+| GA2 | GA2.1 | BC03 | SQK-RBK114-24_barcode03.GA2.1.fastq.tar.gz |
+| GA2 | GA2.2 | BC03 | SQK-RBK114-24_barcode03.GA2.2.fastq.tar.gz |
+| GA3 | GA3.1 | BC05 | SQK-RBK114-24_barcode05.GA3.1.fastq.tar.gz |
+| GA3 | GA3.2 | BC05 | SQK-RBK114-24_barcode05.GA3.2.fastq.tar.gz |
 | **Germany - Natural** | | | |
-| GN1 | GN1.1 | [BC##] | [filename.fastq.gz] |
-| GN1 | GN1.2 | [BC##] | [filename.fastq.gz] |
-| GN2 | GN2.1 | [BC##] | [filename.fastq.gz] |
-| GN2 | GN2.2 | [BC##] | [filename.fastq.gz] |
-| GN3 | GN3.1 | [BC##] | [filename.fastq.gz] |
-| GN3 | GN3.2 | [BC##] | [filename.fastq.gz] |
+| GN1 | GN1.1 | BC17 | SQK-RBK114-24_barcode17.GN1.1.fastq.tar.gz |
+| GN1 | GN1.2 | BC07 | SQK-RBK114-24_barcode07.GN1.2.fastq.tar.gz |
+| GN2 | GN2.1 | BC07 | SQK-RBK114-24_barcode07.GN2.1.fastq.tar.gz |
+| GN2 | GN2.2 | BC07 | SQK-RBK114-24_barcode07.GN2.2.fastq.tar.gz |
+| GN3 | GN3.1 | BC09 | SQK-RBK114-24_barcode09.GN3.1.fastq.tar.gz |
+| GN3 | GN3.2 | BC09 | SQK-RBK114-24_barcode09.GN3.2.fastq.tar.gz |
 | **France - Anthropogenic** | | | |
-| FA1 | FA1.1 | [BC##] | [filename.fastq.gz] |
-| FA1 | FA1.2 | [BC##] | [filename.fastq.gz] |
-| FA2 | FA2.1 | [BC##] | [filename.fastq.gz] |
-| FA2 | FA2.2 | [BC##] | [filename.fastq.gz] |
+| FA1 | FA1.1 | BC19 | SQK-RBK114-24_barcode19.FA1.1.fastq.tar.gz |
+| FA1 | FA1.2 | BC19 | SQK-RBK114-24_barcode19.FA1.2.fastq.tar.gz |
+| FA2 | FA2.1 | BC21 | SQK-RBK114-24_barcode21.FA2.1.fastq.tar.gz |
+| FA2 | FA2.2 | BC13 | SQK-RBK114-24_barcode13.FA2.2.fastq.tar.gz |
 | **France - Natural** | | | |
-| FN1 | FN1.1 | [BC##] | [filename.fastq.gz] |
-| FN1 | FN1.2 | [BC##] | [filename.fastq.gz] |
+| FN1 | FN1.1 | BC11 | SQK-RBK114-24_barcode11.FN1.1.fastq.tar.gz |
+| FN1 | FN1.2 | BC11 | SQK-RBK114-24_barcode11.FN1.2.fastq.tar.gz |
 | **Spain - Anthropogenic** | | | |
-| SA1 | SA1.1 | [BC##] | [filename.fastq.gz] |
-| SA1 | SA1.2 | [BC##] | [filename.fastq.gz] |
+| SA1 | SA1.1 | BC23 | SQK-RBK114-24_barcode23.SA1.1.fastq.tar.gz |
+| SA1 | SA1.2 | BC15 | SQK-RBK114-24_barcode15.SA1.2.fastq.tar.gz |
 | **Spain - Natural** | | | |
-| SN1 | SN1.1 | [BC##] | [filename.fastq.gz] |
-| SN1 | SN1.2 | [BC##] | [filename.fastq.gz] |
-| SN2 | SN2.1 | [BC##] | [filename.fastq.gz] |
-| SN2 | SN2.2 | [BC##] | [filename.fastq.gz] |
+| SN1 | SN1.1 | BC13 | SQK-RBK114-24_barcode13.SN1.1.fastq.tar.gz |
+| SN1 | SN1.2 | BC13 | SQK-RBK114-24_barcode13.SN1.2.fastq.tar.gz |
+| SN2 | SN2.1 | BC15 | SQK-RBK114-24_barcode15.SN2.1.fastq.tar.gz |
+| SN2 | SN2.2 | BC15 | SQK-RBK114-24_barcode15.SN2.2.fastq.tar.gz |
 
 ### 2. 12S Vertebrate Metabarcoding Samples
 
