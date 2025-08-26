@@ -152,7 +152,7 @@ Sites are coded using a **[Country][Environment][Number]** format:
 - **12S samples:** Include both ONT barcodes and 9bp tags for demultiplexing
 - **AIV samples:** Only AIV-positive samples proceed to consensus genome generation
 - All sites are lentic (non-flowing) wetlands
-- Raw FASTQ files are available at ENA under accession PRJEBXXXXX
+- Raw FASTQ files are available at ENA under accession PRJEB96272
 ---
 
 ## Analysis Pipeline Overview
