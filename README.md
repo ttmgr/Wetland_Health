@@ -110,46 +110,27 @@ Sites are coded using a **[Country][Environment][Number]** format:
 ### 4. RNA Viromics Samples
 ### 4. RNA Viromics Samples
 
+### 4. RNA Viromics Samples
 | Location | Sample ID | ONT Barcode | FASTQ Filename |
 |----------|-----------|-------------|----------------|
 | **Germany - Anthropogenic** | | | |
-| GA1 | GA1 | [BC##] | [filename.fastq.gz] |
-| GA2 | GA2 | [BC##] | [filename.fastq.gz] |
-| GA3 | GA3 | [BC##] | [filename.fastq.gz] |
+| GA1 | GA1 | BC01 | SQK-RPB114-24_barcode01.GA1.fastq.tar.gz |
+| GA2 | GA2 | BC02 | SQK-RPB114-24_barcode02.GA2.fastq.tar.gz |
+| GA3 | GA3 | BC03 | SQK-RPB114-24_barcode03.GA3.fastq.tar.gz |
 | **Germany - Natural** | | | |
-| GN1 | GN1 | [BC##] | [filename.fastq.gz] |
-| GN2 | GN2 | [BC##] | [filename.fastq.gz] |
-| GN3 | GN3 | [BC##] | [filename.fastq.gz] |
+| GN1 | GN1 | BC04 | SQK-RPB114-24_barcode04.GN1.fastq.tar.gz |
+| GN2 | GN2 | BC05 | SQK-RPB114-24_barcode05.GN2.fastq.tar.gz |
+| GN3 | GN3 | BC06 | SQK-RPB114-24_barcode06.GN3.fastq.tar.gz |
 | **France - Anthropogenic** | | | |
-| FA1 | FA1 | [BC##] | [filename.fastq.gz] |
-| FA2 | FA2 | [BC##] | [filename.fastq.gz] |
+| FA1 | FA1 | BC08 | SQK-RPB114-24_barcode08.FA1.fastq.tar.gz |
+| FA2 | FA2 | BC02 | SQK-RPB114-24_barcode02.FA2.fastq.tar.gz |
 | **France - Natural** | | | |
-| FN1 | FN1 | [BC##] | [filename.fastq.gz] |
+| FN1 | FN1 | BC01 | SQK-RPB114-24_barcode01.FN1.fastq.tar.gz |
 | **Spain - Anthropogenic** | | | |
-| SA1 | SA1 | [BC##] | [filename.fastq.gz] |
+| SA1 | SA1 | BC11 | SQK-RPB114-24_barcode11.SA1.fastq.tar.gz |
 | **Spain - Natural** | | | |
-| SN1 | SN1 | [BC##] | [filename.fastq.gz] |
-| SN2 | SN2 | [BC##] | [filename.fastq.gz] |
-| Location | Sample ID | ONT Barcode | FASTQ Filename |
-|----------|-----------|-------------|----------------|
-| **Germany - Anthropogenic** | | | |
-| GA1 | GA1 | [BC##] | [filename.fastq.gz] |
-| GA2 | GA2 | [BC##] | [filename.fastq.gz] |
-| GA3 | GA3 | [BC##] | [filename.fastq.gz] |
-| **Germany - Natural** | | | |
-| GN1 | GN1 | [BC##] | [filename.fastq.gz] |
-| GN2 | GN2 | [BC##] | [filename.fastq.gz] |
-| GN3 | GN3 | [BC##] | [filename.fastq.gz] |
-| **France - Anthropogenic** | | | |
-| FA1 | FA1 | [BC##] | [filename.fastq.gz] |
-| FA2 | FA2 | [BC##] | [filename.fastq.gz] |
-| **France - Natural** | | | |
-| FN1 | FN1 | [BC##] | [filename.fastq.gz] |
-| **Spain - Anthropogenic** | | | |
-| SA1 | SA1 | [BC##] | [filename.fastq.gz] |
-| **Spain - Natural** | | | |
-| SN1 | SN1 | [BC##] | [filename.fastq.gz] |
-| SN2 | SN2 | [BC##] | [filename.fastq.gz] |
+| SN1 | SN1 | BC10 | SQK-RPB114-24_barcode10.SN1.fastq.tar.gz |
+| SN2 | SN2 | BC12 | SQK-RPB114-24_barcode12.SN2.fastq.tar.gz |
 
 ### Site Descriptions
 - **Anthropogenic sites (n=6):**
