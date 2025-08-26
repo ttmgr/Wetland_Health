@@ -236,7 +236,7 @@ flowchart TD
 
 This project integrates the following key bioinformatics tools:
 
-* **Basecalling & QC:**
+* **Basecalling, Trimming and File Transformation:**
     * **Dorado:** Basecaller for ONT data (v5.0.0).
     * **Porechop:** Adapter and barcode trimming (v0.2.4).
     * **NanoFilt:** Quality and length filtering for ONT reads (v2.8.0).
@@ -245,7 +245,7 @@ This project integrates the following key bioinformatics tools:
     * **Kraken2:** K-mer based taxonomic classification (v2.1.2).
     * **metaFlye:** Long-read assembler for metagenomes (v2.9.6).
     * **nanoMDBG:** Long-read assembler for metagenomes (v1.1).
-    * **Minimap2:** Long-read alignment (v2.24 for polishing, v2.28 for AIV).
+    * **Minimap2:** Long-read alignment (v2.28).
     * **Racon:** Consensus correction/polishing for assemblies (v1.5.0).
     * **Medaka:** Consensus correction/polishing for assemblies (v1.7.2).
     * **Prokka:** Prokaryotic genome annotation (v1.14.5).
