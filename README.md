@@ -12,7 +12,7 @@ From dual DNA/RNA extractions, four parallel analyses were conducted using Oxfor
 
 This repository contains the bioinformatic workflows used to process the sequencing data.
 
-## ENA Files: [https://www.ebi.ac.uk/ena/browser/view/PRJEB96272](https://www.ebi.ac.uk/ena/browser/view/PRJEB96272) for Metagenomics and RNA Virome
+## ENA Files: [https://www.ebi.ac.uk/ena/browser/view/PRJEB96272](https://www.ebi.ac.uk/ena/browser/view/PRJEB96272) for Metagenomic, 12S rRNA, and Virome data.
 ## AIV Files: GSAID EPI4628641 (Note: Account required for download!)
 
 ---
