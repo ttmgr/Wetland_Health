@@ -1,14 +1,14 @@
-# Wetland Metagenomics, Viromics, and Vertebrate eDNA from European Wetlands (PRJEB96272)
+# Real-time genomic pathogen, resistance, and host range characterization from passive water sampling of wetland ecosystems (PRJEB96272)
 
 ## Project Overview
 
 This project investigates the microbial and viral communities, vertebrate biodiversity, and prevalence of antimicrobial resistance (AMR) genes in 12 European wetlands across Germany, France, and Spain, along the [east atlantic flyway](https://earth.google.com/web/@50.30246982,5.75732731,1000.86387688a,8521661.66667581d,30y,0h,0t,0r/data=CgRCAggBMikKJwolCiExOW5PaHAxTGtOWlFQSVVMaDVYazNhbHNuS1kwblpFTGQgAToDCgEwQgIIAEoICMvq4YQEEAE), a major bird migration corridor. Samples were collected from sites categorized by land use (anthropogenic vs. natural) using torpedo-shaped passive water samplers.
 From dual DNA/RNA extractions, four parallel analyses were conducted using Oxford Nanopore Technologies sequencing (MinION Mk1D/Mk1C, R10.4.1 flow cells):
 
-1.  **Shotgun Metagenomics (eDNA):** Characterization of microbial communities and AMR genes.
-2.  **Vertebrate Metabarcoding (eDNA):** Identification of local vertebrate fauna using 12S rRNA amplicons.
-3.  **Avian Influenza Virus (AIV) Analysis (eRNA):** Targeted whole-genome sequencing of AIV-positive samples.
-4.  **RNA Viromics (eRNA):** Untargeted analysis of RNA virus communities.
+1.  **Shotgun Metagenomics (DNA):** Characterization of microbial communities and AMR genes.
+2.  **Vertebrate Metabarcoding (12S rRNA rRNA):** Identification of local vertebrate fauna using 12S rRNA rRNA amplicons.
+3.  **Avian Influenza Virus (AIV) Analysis (RNA):** Targeted whole-genome sequencing of AIV-positive samples.
+4.  **RNA Viromics (RNA):** Untargeted analysis of RNA virus communities.
 
 This repository contains the bioinformatic workflows used to process the sequencing data.
 
@@ -61,7 +61,7 @@ Sites are coded using a **[Country][Environment][Number]** format:
 | SN2 | SN2.1 | BC15 | SQK-RBK114-24_barcode15.SN2.1.fastq.tar.gz |
 | SN2 | SN2.2 | BC15 | SQK-RBK114-24_barcode15.SN2.2.fastq.tar.gz |
 
-### 2. 12S Vertebrate Metabarcoding Samples
+### 2. 12S rRNA rRNA Vertebrate Metabarcoding Samples
 
 | Location | Sample ID | ONT Barcode | 9bp Tag | FASTQ Filename |
 |----------|-----------|-------------|---------|----------------|
@@ -148,8 +148,8 @@ Sites are coded using a **[Country][Environment][Number]** format:
 
 ### Notes:
 - **DNA shotgun samples:** Duplicate extractions per site (_1 and _2 suffixes)
-- **12S, AIV, Virome samples:** Single extraction per site (location = sample ID)
-- **12S samples:** Include both ONT barcodes and 9bp tags for demultiplexing
+- **12S rRNA rRNA, AIV, Virome samples:** Single extraction per site (location = sample ID)
+- **12S rRNA rRNA samples:** Include both ONT barcodes and 9bp tags for demultiplexing
 - **AIV samples:** Only AIV-positive samples proceed to consensus genome generation
 - All sites are lentic (non-flowing) wetlands
 - Raw FASTQ files are available at ENA under accession PRJEB96272
@@ -162,7 +162,7 @@ This repository outlines four main analysis pipelines:
 1.  **DNA Shotgun Metagenomics:** Processes FASTQ files from environmental DNA for community analysis, assembly, and AMR/pathogen detection.
 2.  **AIV (RNA) Analysis:** Aligns reads from AIV-positive samples to generate consensus genomes.
 3.  **Viral Metagenomics (Viromics):** Processes cDNA reads from total environmental RNA to characterize the RNA virome.
-4.  **12S Vertebrate Genomics:** Processes 12S rRNA gene amplicons to identify vertebrate species.
+4.  **12S rRNA rRNA Vertebrate Genomics:** Processes 12S rRNA gene amplicons to identify vertebrate species.
 
 ```mermaid
 flowchart TD
@@ -171,7 +171,7 @@ flowchart TD
     
     %% DNA Branch
     B --> D[DNA Shotgun Metagenomics]
-    B --> E[12S Vertebrate Genomics]
+    B --> E[12S rRNA Vertebrate Genomics]
     
     %% DNA Shotgun Pipeline
     D --> D1[Basecalling & Demultiplexing<br/>Dorado v5.0.0]
@@ -194,8 +194,8 @@ flowchart TD
     D6b --> D6e[Plasmid Detection<br/>PlasmidFinder v2.1.6]
     D6a --> D6f[Virulence Factors<br/>DIAMOND v2.1.13<br/>vs VFDB]
     
-    %% 12S Pipeline
-    E --> E1[PCR Amplification<br/>12SV05 primers<br/>+ human blocking]
+    %% 12S rRNA Pipeline
+    E --> E1[PCR Amplification<br/>12S rRNAV05 primers<br/>+ human blocking]
     E1 --> E2[Demultiplexing<br/>OBITools4 v1.3.1<br/>9 bp tags]
     E2 --> E3[Primer Trimming<br/>Cutadapt v4.2]
     E3 --> E4[Quality Filtering<br/>VSEARCH v2.21<br/>maxEE 1.0]
@@ -268,7 +268,7 @@ This project integrates the following key bioinformatics tools:
 * `dna_shotgun_analysis_pipeline.md`: Detailed commands for the DNA shotgun metagenomics workflow.
 * `aiv_rna_analysis_pipeline.md`: Detailed commands for the AIV (RNA) analysis workflow.
 * `virome_analysis_pipeline.md`: Detailed commands for the viral metagenomics workflow.
-* `12s_vertebrate_analysis_pipeline.md`: Detailed commands for the 12S vertebrate analysis workflow.
+* `12S rRNA_vertebrate_analysis_pipeline.md`: Detailed commands for the 12S rRNA vertebrate analysis workflow.
 * `Installation_tutorial.md`: Guide for installing all required tools and databases.
 
 ## Usage Workflow
@@ -303,9 +303,9 @@ This project integrates the following key bioinformatics tools:
 
     *For detailed commands, see [`virome_analysis_pipeline.md`](./virome_analysis_pipeline.md).*
 
-### 12S Vertebrate Genomics Workflow
+### 12S rRNA Vertebrate Genomics Workflow
 
-1.  **Library Prep:** A ~97 bp fragment of the 12S rRNA gene was amplified using 12SV05 primers with 9 bp tags. A human-blocking oligonucleotide was included. The final library was prepared with the Ligation Sequencing Kit (SQK-LSK114).
+1.  **Library Prep:** A ~97 bp fragment of the 12S rRNA rRNA gene was amplified using 12S rRNAV05 primers with 9 bp tags. A human-blocking oligonucleotide was included. The final library was prepared with the Ligation Sequencing Kit (SQK-LSK114).
 2.  **Read Processing:** Reads were demultiplexed by their 9 bp tags using **OBITools4**. Primers were trimmed with **Cutadapt**.
 3.  **OTU Clustering & Classification:** The VSEARCH pipeline was used to:
     * Filter reads by expected error (maxEE 1.0).
@@ -314,4 +314,4 @@ This project integrates the following key bioinformatics tools:
     * Cluster sequences into Operational Taxonomic Units (OTUs) at 97% similarity.
 4.  **Taxonomic Assignment:** OTU representative sequences were identified via global alignment against the **MIDORI2** reference database.
 
-    *For detailed commands, see [`12s_vertebrate_analysis_pipeline.md`](./12s_vertebrate_analysis_pipeline.md).*
+    *For detailed commands, see [`12S rRNA_vertebrate_analysis_pipeline.md`](./12S rRNA_vertebrate_analysis_pipeline.md).*
