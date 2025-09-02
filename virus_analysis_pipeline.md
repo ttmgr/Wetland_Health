@@ -266,7 +266,7 @@ diamond blastx \
     --query ${INPUT_FASTA} \
     --out ${OUTPUT_DIR}/diamond_results.tsv \
     --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore stitle \
-    --max-target-seqs 5 \
+    --max-target-seqs 1 \
     --id 80 \
     --threads ${THREADS} \
     --sensitive
