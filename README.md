@@ -268,7 +268,7 @@ This project integrates the following key bioinformatics tools:
 * `dna_shotgun_analysis_pipeline.md`: Detailed commands for the DNA shotgun metagenomics workflow.
 * `aiv_rna_analysis_pipeline.md`: Detailed commands for the AIV (RNA) analysis workflow.
 * `virome_analysis_pipeline.md`: Detailed commands for the viral metagenomics workflow.
-* `12S rRNA_vertebrate_analysis_pipeline.md`: Detailed commands for the 12S rRNA vertebrate analysis workflow.
+* `rrna_vertebrate_analysis.md`: Detailed commands for the 12S rRNA vertebrate analysis workflow.
 * `Installation_tutorial.md`: Guide for installing all required tools and databases.
 
 ## Usage Workflow
@@ -314,4 +314,4 @@ This project integrates the following key bioinformatics tools:
     * Cluster sequences into Operational Taxonomic Units (OTUs) at 97% similarity.
 4.  **Taxonomic Assignment:** OTU representative sequences were identified via global alignment against the **MIDORI2** reference database.
 
-    *For detailed commands, see [`12S rRNA_vertebrate_analysis_pipeline.md`](./12S rRNA_vertebrate_analysis_pipeline.md).*
+    *For detailed commands, see [`rrna_vertebrate_analysis.md`](./rrna_vertebrate_analysis.md).*
