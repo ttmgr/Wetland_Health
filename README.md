@@ -61,7 +61,7 @@ Sites are coded using a **[Country][Environment][Number]** format:
 | SN2 | SN2.1 | BC15 | SQK-RBK114-24_barcode15.SN2.1.fastq.tar.gz |
 | SN2 | SN2.2 | BC15 | SQK-RBK114-24_barcode15.SN2.2.fastq.tar.gz |
 
-### 2. 12S rRNA rRNA Vertebrate Metabarcoding Samples
+### 2. 12S rRNA Vertebrate Metabarcoding Samples
 
 | Location | Sample ID | ONT Barcode | 9bp Tag | FASTQ Filename |
 |----------|-----------|-------------|---------|----------------|
@@ -85,29 +85,8 @@ Sites are coded using a **[Country][Environment][Number]** format:
 | SN2 | SN2 | [BC##] | [Tag###] | [filename.fastq.gz] |
 
 ### 3. AIV (RNA) Analysis Samples
+AIV Files: GSAID EPI4628641 
 
-| Location | Sample ID | ONT Barcode | AIV Status | FASTQ Filename |
-|----------|-----------|-------------|------------|----------------|
-| **Germany - Anthropogenic** | | | | |
-| GA1 | GA1 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
-| GA2 | GA2 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
-| GA3 | GA3 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
-| **Germany - Natural** | | | | |
-| GN1 | GN1 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
-| GN2 | GN2 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
-| GN3 | GN3 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
-| **France - Anthropogenic** | | | | |
-| FA1 | FA1 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
-| FA2 | FA2 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
-| **France - Natural** | | | | |
-| FN1 | FN1 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
-| **Spain - Anthropogenic** | | | | |
-| SA1 | SA1 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
-| **Spain - Natural** | | | | |
-| SN1 | SN1 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
-| SN2 | SN2 | [BC##] | [Pos/Neg] | [filename.fastq.gz] |
-
-### 4. RNA Viromics Samples
 ### 4. RNA Viromics Samples
 
 ### 4. RNA Viromics Samples
