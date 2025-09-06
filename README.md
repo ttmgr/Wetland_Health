@@ -63,26 +63,33 @@ Sites are coded using a **[Country][Environment][Number]** format:
 
 ### 2. 12S rRNA Vertebrate Metabarcoding Samples
 
-| Location | Sample ID | ONT Barcode | 9bp Tag | FASTQ Filename |
-|----------|-----------|-------------|---------|----------------|
-| **Germany - Anthropogenic** | | | | |
-| GA1 | GA1 | [BC##] | [Tag###] | [filename.fastq.gz] |
-| GA2 | GA2 | [BC##] | [Tag###] | [filename.fastq.gz] |
-| GA3 | GA3 | [BC##] | [Tag###] | [filename.fastq.gz] |
-| **Germany - Natural** | | | | |
-| GN1 | GN1 | [BC##] | [Tag###] | [filename.fastq.gz] |
-| GN2 | GN2 | [BC##] | [Tag###] | [filename.fastq.gz] |
-| GN3 | GN3 | [BC##] | [Tag###] | [filename.fastq.gz] |
-| **France - Anthropogenic** | | | | |
-| FA1 | FA1 | [BC##] | [Tag###] | [filename.fastq.gz] |
-| FA2 | FA2 | [BC##] | [Tag###] | [filename.fastq.gz] |
-| **France - Natural** | | | | |
-| FN1 | FN1 | [BC##] | [Tag###] | [filename.fastq.gz] |
-| **Spain - Anthropogenic** | | | | |
-| SA1 | SA1 | [BC##] | [Tag###] | [filename.fastq.gz] |
-| **Spain - Natural** | | | | |
-| SN1 | SN1 | [BC##] | [Tag###] | [filename.fastq.gz] |
-| SN2 | SN2 | [BC##] | [Tag###] | [filename.fastq.gz] |
+### 2. 12S rRNA Vertebrate Metabarcoding Samples
+**Raw Data:** `torpedo12s_all.fastq.gz` (multiplexed file containing all samples)
+
+| Location | Sample ID | ONT Barcode | 9bp Tag | 
+|----------|-----------|-------------|---------|
+| **Germany - Anthropogenic** | | | |
+| GA1 | 1 | BC01 | acataacgc |
+| GA2 | 2 | BC02 | tagtggttc |
+| GA3 | 3 | BC03 | caatagtga |
+| **Germany - Natural** | | | |
+| GN1 | 4 | BC04 | taatacggt |
+| GN2 | 5 | BC05 | agtcaaggc |
+| GN3 | 6 | BC06 | actattggt |
+| **France - Anthropogenic** | | | |
+| FA1 | 7 | BC07 | agtgtccag |
+| FA2 | 8 | BC08 | aagacttcc |
+| **France - Natural** | | | |
+| FN1 | 9 | BC09 | ttacagatc |
+| **Spain - Anthropogenic** | | | |
+| SA1 | 10 | BC10 | ctccacttc |
+| **Spain - Natural** | | | |
+| SN1 | 11 | BC11 | ctatccgcc |
+| SN2 | 12 | BC12 | ctgcgagca |
+| **Controls** | | | |
+| Negative PCR | c_neg_pcr | BC13 | ttagtccac |
+| Negative Extraction | c_neg_ext | BC14 | cgcacagcc |
+| Positive Control | c_pos_sample_dani | BC15 | ttatatatg |
 
 ### 3. AIV (RNA) Analysis Samples
 AIV Files: GSAID EPI4628641 
