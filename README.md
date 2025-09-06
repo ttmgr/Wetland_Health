@@ -88,8 +88,6 @@ Sites are coded using a **[Country][Environment][Number]** format:
 AIV Files: GSAID EPI4628641 
 
 ### 4. RNA Viromics Samples
-
-### 4. RNA Viromics Samples
 | Location | Sample ID | ONT Barcode | FASTQ Filename |
 |----------|-----------|-------------|----------------|
 | **Germany - Anthropogenic** | | | |
