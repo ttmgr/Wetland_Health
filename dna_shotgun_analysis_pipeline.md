@@ -632,12 +632,11 @@ Detect AMR genes in assembled contigs.
 
 ```bash
 #!/bin/bash
-# AMR detection on assemblies
+# AMR detection on assemblies using AMRFinderPlus
 
 # Define variables
 ASSEMBLY_DIR="09_medaka_polished"  # Or choose your preferred assembly
 AMR_CONTIGS_DIR="12_amr_detection_contigs"
-AMR_DB="/path/to/amr_database"
 THREADS=16
 
 # Create output directory
@@ -657,31 +656,51 @@ for SAMPLE_DIR in ${ASSEMBLY_DIR}/barcode*; do
         
         mkdir -p ${OUTPUT_DIR}
         
-        echo "[$(date)] Running AMR detection on ${BARCODE} contigs..."
+        echo "[$(date)] Running AMRFinderPlus on ${BARCODE} contigs..."
         
-        # Run AMR detection
-        abricate \
-            --db ${AMR_DB} \
+        # Run AMRFinderPlus in plus mode
+        amrfinder \
+            --plus \
+            --nucleotide ${ASSEMBLY} \
             --threads ${THREADS} \
-            --minid 90 \
-            --mincov 80 \
-            ${ASSEMBLY} > "${OUTPUT_DIR}/${BARCODE}_amr_contigs.tsv"
+            --name ${BARCODE} \
+            --output "${OUTPUT_DIR}/${BARCODE}_amr_results.tsv"
         
         # Extract AMR-carrying contigs
-        if [ -s "${OUTPUT_DIR}/${BARCODE}_amr_contigs.tsv" ]; then
-            # Get contig IDs with AMR genes
-            tail -n +2 "${OUTPUT_DIR}/${BARCODE}_amr_contigs.tsv" | \
+        if [ -s "${OUTPUT_DIR}/${BARCODE}_amr_results.tsv" ]; then
+            # Get contig IDs with AMR genes (column 2 contains contig names)
+            tail -n +2 "${OUTPUT_DIR}/${BARCODE}_amr_results.tsv" | \
                 cut -f2 | sort -u > "${OUTPUT_DIR}/amr_contig_ids.txt"
             
             # Extract AMR-carrying contigs
             seqkit grep -f "${OUTPUT_DIR}/amr_contig_ids.txt" \
                 ${ASSEMBLY} > "${OUTPUT_DIR}/${BARCODE}_amr_contigs.fasta"
             
+            # Count AMR genes and contigs
+            AMR_GENE_COUNT=$(tail -n +2 "${OUTPUT_DIR}/${BARCODE}_amr_results.tsv" | wc -l)
             AMR_CONTIG_COUNT=$(wc -l < "${OUTPUT_DIR}/amr_contig_ids.txt")
-            echo "[$(date)] ${BARCODE}: ${AMR_CONTIG_COUNT} contigs carry AMR genes"
+            
+            echo "[$(date)] ${BARCODE}: Found ${AMR_GENE_COUNT} AMR genes on ${AMR_CONTIG_COUNT} contigs"
+            
+            # Generate summary statistics
+            echo -e "Sample\tTotal_AMR_genes\tAMR_contigs" > "${OUTPUT_DIR}/${BARCODE}_summary.txt"
+            echo -e "${BARCODE}\t${AMR_GENE_COUNT}\t${AMR_CONTIG_COUNT}" >> "${OUTPUT_DIR}/${BARCODE}_summary.txt"
+        else
+            echo "[$(date)] ${BARCODE}: No AMR genes detected"
         fi
     fi
 done
+
+# Create combined summary
+echo "[$(date)] Creating combined AMR summary..."
+echo -e "Sample\tTotal_AMR_genes\tAMR_contigs" > "${AMR_CONTIGS_DIR}/combined_amr_summary.tsv"
+for SUMMARY in ${AMR_CONTIGS_DIR}/barcode*/barcode*_summary.txt; do
+    if [ -f "${SUMMARY}" ]; then
+        tail -n 1 "${SUMMARY}" >> "${AMR_CONTIGS_DIR}/combined_amr_summary.tsv"
+    fi
+done
+
+echo "[$(date)] AMR detection on contigs completed!"
 ```
 
 ### 15. AMR Gene-Pathogen Linkage Analysis
