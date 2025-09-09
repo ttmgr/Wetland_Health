@@ -684,8 +684,6 @@ for SAMPLE_DIR in ${ASSEMBLY_DIR}/barcode*; do
 done
 ```
 
-Based on your scripts, the AMR gene-pathogen linkage was actually done using **Minimap2 alignment to NT database followed by MEGAN taxonomic classification**, not DIAMOND/Kraken2 directly on AMR contigs. 
-
 ### 15. AMR Gene-Pathogen Linkage Analysis
 
 The linkage between AMR genes and their host organisms was determined by aligning reads to the NCBI NT database and taxonomic classification using MEGAN.
