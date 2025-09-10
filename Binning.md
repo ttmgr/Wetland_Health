@@ -9,7 +9,7 @@ Assumptions. ONT R9/R10 data, basecalled with Dorado (hac or sup). Assemblies vi
 ```mermaid
 graph TD
     A[Raw ONT Signals<br/>POD5/FAST5] --> B[Basecalling<br/>Dorado]
-    B --> C[QC & Host Depletion<br/>NanoFilt/Filtlong<br/>minimap2 vs host<br/>optional Kraken2]
+    B --> C[QC and Host Depletion<br/>NanoFilt/Filtlong<br/>minimap2 vs host<br/>optional Kraken2]
     C --> D[Assembly<br/>Flye --nano-hq --meta<br/>or Raven]
     D --> E[Read Mapping to Contigs<br/>minimap2 -ax map-ont<br/>→ sorted/indexed BAM]
     E --> F1[VAMB<br/>VAE: k-mers + coverage]
