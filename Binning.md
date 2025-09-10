@@ -116,33 +116,63 @@ conda activate vamb
 mamba install -n vamb -c bioconda strobealign
 ```
 
+You're right, let me correct the VAMB section to use minimap2 for abundance calculation instead of strobealign:
+
+## 2) VAMB
+
+Concept. Variational autoencoder integrating k-mer composition and multi-sample coverage; strong performance on cohort data.
+
+### 2.1 Installation
+
+```bash
+mamba create -n vamb -c conda-forge -c bioconda vamb
+conda activate vamb
+# or:
+# pip install vamb
+```
+
 ### 2.2 Inputs and run
 
-Abundances can be prepared with strobealign's `--aemb` and merged via VAMB's helper scripts. If the helper scripts are not on your `PATH`, clone the VAMB repository or adjust the paths accordingly.
+VAMB can calculate abundances from BAM files generated with minimap2. Multiple samples can be provided to improve binning through coverage covariance.
 
 ```bash
 # Concatenate assemblies and rename contigs to VAMB's scheme
-python src/concatenate.py contigs.fna.gz flye_out/assembly.fasta
+python concatenate.py --keepnames contigs_catalogue.fna.gz flye_out/assembly.fasta
+# Or if using VAMB from repository:
+# python src/concatenate.py --keepnames contigs_catalogue.fna.gz flye_out/assembly.fasta
 
-# Generate abundance tables (per sample)
-mkdir -p aemb
-strobealign -t 16 --aemb contigs.fna.gz sample1.fastq.gz > aemb/sample1.tsv
+# Map reads to concatenated catalogue for each sample
+minimap2 -t 32 -ax map-ont contigs_catalogue.fna.gz sample1_reads.fastq | samtools sort -o sample1.bam
+minimap2 -t 32 -ax map-ont contigs_catalogue.fna.gz sample2_reads.fastq | samtools sort -o sample2.bam
 # Repeat for additional samples...
 
-# Merge AEMB outputs into a single abundance table
-python src/merge_aemb.py aemb abundance.tsv
+# Index BAM files
+samtools index sample1.bam
+samtools index sample2.bam
 
-# Run VAMB
+# Run VAMB with BAM files
 vamb bin default \
   --outdir vambout \
-  --fasta contigs.fna.gz \
-  --abundance_tsv abundance.tsv \
+  --fasta contigs_catalogue.fna.gz \
+  --bamfiles sample1.bam sample2.bam \
   --minfasta 200000 \
   -m 2000 \
   -p 16
 ```
 
-Key parameters. `--minfasta` (minimum total bin size to output), `-m` (minimum contig length), `-p` (threads), `--cuda` (use GPU), `--seed` (reproducibility).
+```bash
+# 5) VAMB (using minimap2-generated BAMs)
+python concatenate.py --keepnames contigs_catalogue.fna.gz flye_out/assembly.fasta
+minimap2 -t 32 -ax map-ont contigs_catalogue.fna.gz reads_filtered.fastq | samtools sort -o sample.bam
+samtools index sample.bam
+vamb bin default \
+  --outdir vambout \
+  --fasta contigs_catalogue.fna.gz \
+  --bamfiles sample.bam \
+  --minfasta 200000 -m 2000 -p 16
+```
+
+Key parameters remain the same: `--minfasta` (minimum total bin size to output), `-m` (minimum contig length), `-p` (threads), `--cuda` (use GPU), `--seed` (reproducibility).
 
 ⸻
 
